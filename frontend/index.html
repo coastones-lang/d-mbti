@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D-MBTI 狗狗性格测试</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+        
+        .option-card {
+            transition: all 0.2s ease;
+        }
+        
+        .option-card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .option-card.selected {
+            border-color: #8B5CF6;
+            background-color: #F5F3FF;
+        }
+        
+        .progress-bar {
+            transition: width 0.3s ease;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .paw-pattern {
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 15c-2.5 0-5 2.5-5 5s2.5 5 5 5 5-2.5 5-5-2.5-5-5-5zm-15 10c-2.5 0-5 2.5-5 5s2.5 5 5 5 5-2.5 5-5-2.5-5-5-5zm30 0c-2.5 0-5 2.5-5 5s2.5 5 5 5 5-2.5 5-5-2.5-5-5-5zm-15 20c-4 0-7.5 3-8.5 7-.5 2 1 4 3.5 4s4.5-1 5-3c.5-2 1-4 0-6zm-14 8c-1.5 0-2.5 1-2.5 2.5s1 2.5 2.5 2.5 2.5-1 2.5-2.5-1-2.5-2.5-2.5zm29 0c-1.5 0-2.5 1-2.5 2.5s1 2.5 2.5 2.5 2.5-1 2.5-2.5-1-2.5-2.5-2.5z' fill='%238B5CF6' fill-opacity='0.05'/%3E%3C/svg%3E");
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-purple-50 to-pink-50 min-h-screen paw-pattern">
+    <div id="app" class="container mx-auto px-4 py-8 max-w-lg">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-purple-700 mb-2">🐕 D-MBTI</h1>
+            <p class="text-gray-600">狗狗性格类型测试</p>
+        </header>
+
+        <!-- Welcome Screen -->
+        <div id="welcome-screen" class="bg-white rounded-2xl shadow-lg p-6 fade-in">
+            <div class="text-center mb-6">
+                <div class="w-24 h-24 mx-auto mb-4 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center text-5xl">
+                    🐕
+                </div>
+                <h2 class="text-xl font-semibold text-gray-800 mb-2">你好，我是 Yoki!</h2>
+                <p class="text-gray-600 text-sm">准备好了解你的狗狗伙伴了吗？</p>
+            </div>
+            
+            <div class="space-y-3 mb-6">
+                <div class="flex items-center gap-3 text-sm text-gray-600">
+                    <span class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center text-purple-600">📝</span>
+                    <span>共 40 道题目</span>
+                </div>
+                <div class="flex items-center gap-3 text-sm text-gray-600">
+                    <span class="w-8 h-8 bg-pink-100 rounded-full flex items-center justify-center text-pink-600">⏱️</span>
+                    <span>约 5 分钟完成</span>
+                </div>
+                <div class="flex items-center gap-3 text-sm text-gray-600">
+                    <span class="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600">🎯</span>
+                    <span>了解狗狗的独特性格</span>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">输入狗狗的名字（可选）</label>
+                <input 
+                    type="text" 
+                    id="dog-name" 
+                    value="Yoki"
+                    class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    placeholder="比如: 豆豆、旺财..."
+                >
+            </div>
+
+            <button 
+                onclick="startQuiz()"
+                class="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 px-6 rounded-xl font-semibold hover:from-purple-600 hover:to-pink-600 transition-all shadow-lg hover:shadow-xl"
+            >
+                开始测试 🐾
+            </button>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" class="hidden">
+            <!-- Progress -->
+            <div class="mb-6">
+                <div class="flex justify-between text-sm text-gray-600 mb-2">
+                    <span>题目 <span id="current-q">1</span> / <span id="total-q">40</span></span>
+                    <span id="progress-percent">0%</span>
+                </div>
+                <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                    <div id="progress-bar" class="progress-bar h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Question Card -->
+            <div id="question-card" class="bg-white rounded-2xl shadow-lg p-6 fade-in">
+                <div class="flex items-center gap-2 mb-4">
+                    <span id="category-badge" class="px-3 py-1 bg-purple-100 text-purple-600 text-xs rounded-full font-medium">
+                        社交性
+                    </span>
+                </div>
+                
+                <h2 id="question-text" class="text-lg font-medium text-gray-800 mb-6">
+                    Yoki见到陌生人时，通常会：
+                </h2>
+
+                <div id="options" class="space-y-3">
+                    <!-- Options will be dynamically inserted -->
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="flex justify-between mt-6">
+                <button 
+                    id="prev-btn"
+                    onclick="prevQuestion()"
+                    class="px-6 py-2 text-gray-600 hover:text-gray-800 disabled:opacity-50"
+                    disabled
+                >
+                    ← 上一题
+                </button>
+                <button 
+                    id="next-btn"
+                    onclick="nextQuestion()"
+                    class="px-6 py-2 bg-purple-100 text-purple-600 rounded-lg font-medium hover:bg-purple-200 disabled:opacity-50"
+                    disabled
+                >
+                    下一题 →
+                </button>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div id="loading" class="hidden text-center py-12">
+            <div class="w-12 h-12 mx-auto mb-4 border-4 border-purple-200 border-t-purple-500 rounded-full animate-spin"></div>
+            <p class="text-gray-600">正在分析性格中...</p>
+        </div>
+
+        <!-- Result Screen -->
+        <div id="result-screen" class="hidden fade-in">
+            <div class="bg-white rounded-2xl shadow-lg p-6 text-center">
+                <div class="mb-6">
+                    <p class="text-gray-600 mb-2" id="result-dog-name">Yoki 的性格类型</p>
+                    <div class="inline-block px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl text-white">
+                        <span class="text-5xl font-bold tracking-wider" id="mbti-type">ENFP</span>
+                    </div>
+                </div>
+
+                <div class="text-left bg-purple-50 rounded-xl p-4 mb-6">
+                    <p id="result-description" class="text-gray-700 leading-relaxed whitespace-pre-line">
+                        性格描述内容...
+                    </p>
+                </div>
+
+                <!-- Score Breakdown -->
+                <div class="mb-6">
+                    <h3 class="text-sm font-medium text-gray-600 mb-3">维度得分</h3>
+                    <div id="score-breakdown" class="space-y-2">
+                        <!-- Scores will be inserted here -->
+                    </div>
+                </div>
+
+                <div class="flex gap-3">
+                    <button 
+                        onclick="shareResult()"
+                        class="flex-1 py-3 px-4 bg-pink-100 text-pink-600 rounded-xl font-medium hover:bg-pink-200 transition-colors"
+                    >
+                        📤 分享结果
+                    </button>
+                    <button 
+                        onclick="restartQuiz()"
+                        class="flex-1 py-3 px-4 bg-purple-100 text-purple-600 rounded-xl font-medium hover:bg-purple-200 transition-colors"
+                    >
+                        🔄 再测一次
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== State ==========
+        let questions = [];
+        let currentIndex = 0;
+        let answers = {};
+        let dogName = 'Yoki';
+
+        // ========== Init ==========
+        async function loadQuestions() {
+            try {
+                const response = await fetch('/api/questions');
+                const data = await response.json();
+                // API返回 { questions: { categories: [...], questions: [...] } }
+                questions = data.questions.questions;
+                document.getElementById('total-q').textContent = questions.length;
+            } catch (error) {
+                console.error('Failed to load questions:', error);
+                alert('加载题目失败，请刷新页面重试');
+            }
+        }
+
+        function startQuiz() {
+            dogName = document.getElementById('dog-name').value || 'Yoki';
+            document.getElementById('welcome-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            
+            if (questions.length === 0) {
+                loadQuestions().then(() => renderQuestion());
+            } else {
+                renderQuestion();
+            }
+        }
+
+        // ========== Quiz Logic ==========
+        function renderQuestion() {
+            const q = questions[currentIndex];
+            const total = questions.length;
+
+            // Update progress
+            document.getElementById('current-q').textContent = currentIndex + 1;
+            document.getElementById('progress-percent').textContent = Math.round((currentIndex / total) * 100) + '%';
+            document.getElementById('progress-bar').style.width = (currentIndex / total * 100) + '%';
+
+            // Update category badge
+            const categoryNames = {
+                'social': '社交性',
+                'perception': '感知力',
+                'judgment': '判断力',
+                'lifestyle': '生活方式',
+                'energy': '精力模式'
+            };
+            document.getElementById('category-badge').textContent = categoryNames[q.category] || q.category;
+
+            // Update question text with dog name
+            document.getElementById('question-text').textContent = q.question.replace(/Yoki/g, dogName);
+
+            // Render options
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = q.options.map((opt, idx) => `
+                <div 
+                    class="option-card p-4 border-2 border-gray-100 rounded-xl cursor-pointer ${answers[q.id] === idx ? 'selected' : ''}"
+                    onclick="selectOption(${q.id}, ${idx})"
+                >
+                    <p class="text-gray-700">${opt.text.replace(/Yoki/g, dogName)}</p>
+                </div>
+            `).join('');
+
+            // Update navigation buttons
+            document.getElementById('prev-btn').disabled = currentIndex === 0;
+            document.getElementById('next-btn').disabled = answers[questions[currentIndex].id] === undefined;
+        }
+
+        function selectOption(questionId, optionIndex) {
+            answers[questionId] = optionIndex;
+            renderQuestion();
+        }
+
+        function prevQuestion() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                renderQuestion();
+            }
+        }
+
+        function nextQuestion() {
+            if (currentIndex < questions.length - 1) {
+                currentIndex++;
+                renderQuestion();
+            } else {
+                submitQuiz();
+            }
+        }
+
+        // ========== Submit ==========
+        async function submitQuiz() {
+            const answerList = Object.entries(answers).map(([qid, optIdx]) => ({
+                question_id: parseInt(qid),
+                option_index: optIdx
+            }));
+
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('loading').classList.remove('hidden');
+
+            try {
+                const response = await fetch('/api/submit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        dog_name: dogName,
+                        answers: answerList
+                    })
+                });
+
+                const result = await response.json();
+                showResult(result);
+            } catch (error) {
+                console.error('Failed to submit:', error);
+                alert('提交失败，请重试');
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('quiz-screen').classList.remove('hidden');
+            }
+        }
+
+        // ========== Result ==========
+        function showResult(result) {
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+
+            document.getElementById('result-dog-name').textContent = `${dogName} 的性格类型`;
+            document.getElementById('mbti-type').textContent = result.mbti_type;
+            document.getElementById('result-description').textContent = result.description;
+
+            // Score breakdown
+            const breakdown = document.getElementById('score-breakdown');
+            breakdown.innerHTML = result.scores.map(s => `
+                <div class="flex items-center justify-between text-sm">
+                    <span class="text-gray-600">${s.dimension}</span>
+                    <span class="font-medium text-purple-600">${s.letter}</span>
+                </div>
+            `).join('');
+        }
+
+        function shareResult() {
+            const type = document.getElementById('mbti-type').textContent;
+            const text = `🐕 ${dogName} 的D-MBTI性格类型是 ${type}！\n快来测试你的狗狗吧！`;
+            
+            if (navigator.share) {
+                navigator.share({ text });
+            } else {
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('已复制到剪贴板！');
+                });
+            }
+        }
+
+        function restartQuiz() {
+            currentIndex = 0;
+            answers = {};
+            document.getElementById('result-screen').classList.add('hidden');
+            document.getElementById('welcome-screen').classList.remove('hidden');
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (document.getElementById('quiz-screen').classList.contains('hidden')) return;
+            
+            if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+                nextQuestion();
+            } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+                prevQuestion();
+            }
+        });
+    </script>
+</body>
+</html>
