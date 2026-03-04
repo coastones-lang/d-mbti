@@ -841,7 +841,6 @@
             // 使用内嵌的题目数据
             questions = QUESTIONS_DATA.questions;
             document.getElementById('total-q').textContent = questions.length;
-            renderQuestionDots();
         }
 
         function startQuiz() {
@@ -916,31 +915,6 @@
             } else {
                 nextBtn.innerHTML = `下一题 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>`;
             }
-
-            updateQuestionDots();
-        }
-
-        function renderQuestionDots() {
-            const dotsContainer = document.getElementById('question-dots');
-            dotsContainer.innerHTML = questions.map((_, idx) => `
-                <div class="question-dot w-2 h-2 rounded-full transition-all duration-300 ${idx === 0 ? 'bg-white w-6' : 'bg-white/40'}"></div>
-            `).join('');
-        }
-
-        function updateQuestionDots() {
-            const dots = document.querySelectorAll('.question-dot');
-            dots.forEach((dot, idx) => {
-                if (idx === currentIndex) {
-                    dot.classList.remove('bg-white/40');
-                    dot.classList.add('bg-white', 'w-6');
-                } else if (idx < currentIndex) {
-                    dot.classList.remove('bg-white/40', 'w-6');
-                    dot.classList.add('bg-white/70', 'w-2');
-                } else {
-                    dot.classList.remove('bg-white', 'w-6', 'bg-white/70');
-                    dot.classList.add('bg-white/40', 'w-2');
-                }
-            });
         }
 
         function selectOption(questionId, optionIndex) {
