@@ -958,28 +958,14 @@
         function calculateMBTI(answers) {
             const scores = { E: 0, S: 0, T: 0, J: 0, A: 0, I: 0, N: 0, F: 0, P: 0, C: 0 };
             
-            // 按维度分组统计
-            const dimensionQuestions = { E: [], I: [], S: [], N: [], T: [], F: [], J: [], P: [], A: [], C: [] };
-            
-            for (const q of QUESTIONS_DATA.questions) {
-                for (const opt of q.options) {
-                    const dim = opt.dimension || "";
-                    if (dim in dimensionQuestions) {
-                        dimensionQuestions[dim].push({ question_id: q.id, score: opt.score });
-                    }
-                }
-            }
-            
-            // 计算得分
-            for (const [dim, qList] of Object.entries(dimensionQuestions)) {
-                for (const qInfo of qList) {
-                    const qid = qInfo.question_id;
-                    if (qid in answers) {
-                        const optIdx = answers[qid];
-                        const question = QUESTIONS_DATA.questions.find(q => q.id === qid);
-                        if (question) {
-                            scores[dim] += question.options[optIdx].score;
-                        }
+            // 遍历用户的每个答案
+            for (const [qid, optIdx] of Object.entries(answers)) {
+                const question = QUESTIONS_DATA.questions.find(q => q.id === parseInt(qid));
+                if (question && question.options[optIdx]) {
+                    const selectedOption = question.options[optIdx];
+                    const dim = selectedOption.dimension;
+                    if (dim in scores) {
+                        scores[dim] += selectedOption.score;
                     }
                 }
             }
