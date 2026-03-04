@@ -598,6 +598,11 @@
                     <!-- 称号 -->
                     <h2 class="text-2xl font-black text-slate-800 text-center mb-2" id="result-title">快乐小疯子</h2>
                     
+                    <!-- Tags -->
+                    <div class="flex flex-wrap justify-center gap-2 mb-3" id="result-tags">
+                        <!-- 动态插入 tags -->
+                    </div>
+                    
                     <!-- 金句 -->
                     <p class="text-slate-600 text-center italic text-base px-2 mb-4" id="result-quote">"只要我跑得够快，烦恼就追不上我！"</p>
 
@@ -695,6 +700,11 @@
                         
                         <!-- 称号 -->
                         <h2 class="text-xl font-black text-slate-800 text-center mb-1" id="poster-title">快乐小疯子</h2>
+                        
+                        <!-- Tags -->
+                        <div class="flex flex-wrap justify-center gap-1 mb-2" id="poster-tags">
+                            <!-- 动态插入 tags -->
+                        </div>
                         
                         <!-- 金句 -->
                         <p class="text-slate-500 text-center italic text-xs px-2 mb-3" id="poster-quote">"只要我跑得够快，烦恼就追不上我！"</p>
@@ -1129,6 +1139,12 @@
             document.getElementById('result-title').textContent = personalityInfo.title;
             document.getElementById('result-quote').textContent = personalityInfo.quote;
             
+            // 更新 Tags（结果页）
+            const resultTagsContainer = document.getElementById('result-tags');
+            resultTagsContainer.innerHTML = personalityInfo.tags.map(tag => 
+                `<span class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium">${tag}</span>`
+            ).join('');
+            
             // 更新雷达图标签和分数
             document.getElementById('result-label-top').textContent = radarData.top.label;
             document.getElementById('result-score-top').textContent = radarData.top.score + '%';
@@ -1154,6 +1170,13 @@
             document.getElementById('poster-mbti').textContent = result.mbti_type;
             document.getElementById('poster-title').textContent = personalityInfo.title;
             document.getElementById('poster-quote').textContent = `"${personalityInfo.quote}"`;
+            
+            // 更新 Tags（海报）
+            const posterTagsContainer = document.getElementById('poster-tags');
+            posterTagsContainer.innerHTML = personalityInfo.tags.map(tag => 
+                `<span class="px-2 py-0.5 bg-purple-100 text-purple-700 rounded text-[10px] font-medium">${tag}</span>`
+            ).join('');
+            
             document.getElementById('poster-match').textContent = personalityInfo.match;
             document.getElementById('poster-advice').textContent = `"${personalityInfo.advice}"`;
             
@@ -1181,33 +1204,29 @@
         
         // 计算雷达图数据
         function calculateRadarData(scores) {
-            // 从 MBTI 分数映射到雷达图维度
-            const dimensions = {
-                top: { label: '社交能量', score: 50 },
-                right: { label: '拆家指数', score: 50 },
-                bottom: { label: '粘人程度', score: 50 },
-                left: { label: '通人性', score: 50 }
+            // 找到各维度的 percentage
+            const getPercentage = (dim) => {
+                const score = scores.find(s => s.dimension === dim);
+                return score ? score.percentage : 50;
             };
             
-            scores.forEach(s => {
-                const dim = s.dimension.toUpperCase();
-                const percentage = s.percentage || 50;
-                
-                switch(dim) {
-                    case 'E/I':
-                        dimensions.top.score = Math.round(percentage);
-                        break;
-                    case 'S/N':
-                        dimensions.left.score = Math.round(percentage);
-                        break;
-                    case 'T/F':
-                        dimensions.bottom.score = Math.round(percentage);
-                        break;
-                    case 'J/P':
-                        dimensions.right.score = Math.round(100 - percentage); // 拆家指数与守序度相反
-                        break;
-                }
-            });
+            const eiPercent = getPercentage("E/I");
+            const snPercent = getPercentage("S/N");
+            const tfPercent = getPercentage("T/F");
+            const jpPercent = getPercentage("J/P");
+            
+            // 雷达图维度映射（根据MBTI字母计算）
+            // percentage 是偏向右侧（I/N/F/P）的比例，所以：
+            // - E 的社交能量高，所以用 100 - eiPercent（eiPercent是I的比例）
+            // - N 通人性高，用 snPercent（snPercent是N的比例）
+            // - F 粘人程度高，用 tfPercent（tfPercent是F的比例）
+            // - P 拆家指数高，用 jpPercent（jpPercent是P的比例）
+            const dimensions = {
+                top: { label: '社交能量', score: Math.round(100 - eiPercent) },
+                right: { label: '拆家指数', score: Math.round(jpPercent) },
+                bottom: { label: '粘人程度', score: Math.round(tfPercent) },
+                left: { label: '通人性', score: Math.round(snPercent) }
+            };
             
             return dimensions;
         }
