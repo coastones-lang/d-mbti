@@ -667,7 +667,7 @@
             </div>
 
             <!-- 隐藏的海报容器 - 用于分享 -->
-            <div id="result-poster" class="absolute -left-[9999px] w-[340px] aspect-[9/16] bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 rounded-[2rem] overflow-hidden shadow-2xl">
+            <div id="result-poster" class="fixed top-0 left-0 w-[340px] h-[604px] opacity-0 pointer-events-none z-[-1] bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 rounded-[2rem] overflow-hidden shadow-2xl">
                 <!-- 装饰背景 -->
                 <div class="absolute inset-0 overflow-hidden pointer-events-none">
                     <div class="absolute top-10 left-6 w-3 h-3 bg-yellow-300 rounded-full opacity-70"></div>
@@ -1540,6 +1540,10 @@
             const btn = document.querySelector('button[onclick="savePoster()"]');
             const originalText = btn.innerHTML;
             
+            // 临时显示海报用于截图
+            poster.classList.remove('opacity-0', 'pointer-events-none');
+            poster.classList.add('opacity-100');
+            
             try {
                 btn.innerHTML = '<svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> 生成中...';
                 btn.disabled = true;
@@ -1566,6 +1570,9 @@
             } finally {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
+                // 重新隐藏海报
+                poster.classList.remove('opacity-100');
+                poster.classList.add('opacity-0', 'pointer-events-none');
             }
         }
 
