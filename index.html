@@ -1091,7 +1091,7 @@
                 };
                 
                 const result = {
-                    mbti_type: fullType,
+                    mbti_type: mbtiType,  // 只使用4字符的MBTI类型
                     description: getResultDescription(mbtiType, energySuffix),
                     scores: [
                         { dimension: "E/I", score: scores.E + scores.I, letter: mbtiType[0], percentage: calculatePercentage("E", "I") },
@@ -1129,11 +1129,18 @@
             document.getElementById('result-title').textContent = personalityInfo.title;
             document.getElementById('result-quote').textContent = personalityInfo.quote;
             
-            // 更新雷达图
-            document.getElementById('result-radar-top').textContent = radarData.top.score + '%';
-            document.getElementById('result-radar-left').textContent = radarData.left.score + '%';
-            document.getElementById('result-radar-right').textContent = radarData.right.score + '%';
-            document.getElementById('result-radar-bottom').textContent = radarData.bottom.score + '%';
+            // 更新雷达图标签和分数
+            document.getElementById('result-label-top').textContent = radarData.top.label;
+            document.getElementById('result-score-top').textContent = radarData.top.score + '%';
+            document.getElementById('result-label-right').textContent = radarData.right.label;
+            document.getElementById('result-score-right').textContent = radarData.right.score + '%';
+            document.getElementById('result-label-bottom').textContent = radarData.bottom.label;
+            document.getElementById('result-score-bottom').textContent = radarData.bottom.score + '%';
+            document.getElementById('result-label-left').textContent = radarData.left.label;
+            document.getElementById('result-score-left').textContent = radarData.left.score + '%';
+            
+            // 渲染结果页雷达图
+            document.getElementById('result-radar-chart').innerHTML = renderRadarChart(radarData, result.mbti_type);
             
             // 更新匹配信息
             document.getElementById('result-match').textContent = personalityInfo.match;
