@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RadarChart 雷达图预览</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Nunito', sans-serif; }
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-slate-800 mb-2">RadarChart 纯 SVG 雷达图</h1>
+        <p class="text-slate-500 mb-8">D-MBTI 性格测试结果可视化组件</p>
+
+        <!-- Yoki 雷达图展示 -->
+        <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
+            <h2 class="text-xl font-bold text-slate-700 mb-6">Yoki 的 ENFP 性格雷达</h2>
+            
+            <div class="flex flex-col md:flex-row items-center gap-8">
+                <!-- SVG 雷达图 -->
+                <div class="w-80 h-80 bg-slate-50 rounded-2xl p-4">
+                    <svg viewBox="0 0 240 240" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <radialGradient id="dataGradient" cx="50%" cy="50%" r="50%">
+                                <stop offset="0%" stop-color="#6B66DA" stop-opacity="0.6"/>
+                                <stop offset="100%" stop-color="#6B66DA" stop-opacity="0.2"/>
+                            </radialGradient>
+                            <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                                <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                                <feMerge>
+                                    <feMergeNode in="coloredBlur"/>
+                                    <feMergeNode in="SourceGraphic"/>
+                                </feMerge>
+                            </filter>
+                            <radialGradient id="dotGradient" cx="30%" cy="30%" r="70%">
+                                <stop offset="0%" stop-color="#FFFFFF"/>
+                                <stop offset="100%" stop-color="#6B66DA"/>
+                            </radialGradient>
+                        </defs>
+                        
+                        <!-- 网格层 (25%, 50%, 75%, 100%) -->
+                        <polygon points="120,40 200,120 120,200 40,120" fill="none" stroke="#E2E8F0" stroke-width="1" opacity="0.9"/>
+                        <polygon points="120,60 180,120 120,180 60,120" fill="none" stroke="#E2E8F0" stroke-width="1" opacity="0.7"/>
+                        <polygon points="120,80 160,120 120,160 80,120" fill="none" stroke="#E2E8F0" stroke-width="1" opacity="0.5"/>
+                        <polygon points="120,100 140,120 120,140 100,120" fill="none" stroke="#E2E8F0" stroke-width="1" opacity="0.3"/>
+                        
+                        <!-- 坐标轴虚线 -->
+                        <line x1="120" y1="120" x2="120" y2="40" stroke="#CBD5E1" stroke-width="1" stroke-dasharray="4 4" opacity="0.5"/>
+                        <line x1="120" y1="120" x2="200" y2="120" stroke="#CBD5E1" stroke-width="1" stroke-dasharray="4 4" opacity="0.5"/>
+                        <line x1="120" y1="120" x2="120" y2="200" stroke="#CBD5E1" stroke-width="1" stroke-dasharray="4 4" opacity="0.5"/>
+                        <line x1="120" y1="120" x2="40" y2="120" stroke="#CBD5E1" stroke-width="1" stroke-dasharray="4 4" opacity="0.5"/>
+                        
+                        <!-- 数据多边形 (Yoki: 社交90, 拆家85, 粘人70, 通人性40) -->
+                        <!-- 计算坐标: 半径 = (score/100)*80 -->
+                        <!-- top: (120, 120-72)=(120,48), right: (120+68,120)=(188,120), bottom: (120,120+56)=(120,176), left: (120-32,120)=(88,120) -->
+                        <polygon points="120,48 188,120 120,176 88,120" fill="rgba(107, 102, 218, 0.35)" stroke="#6B66DA" stroke-width="3" stroke-linejoin="round" filter="url(#glow)"/>
+                        <polygon points="120,48 188,120 120,176 88,120" fill="url(#dataGradient)" opacity="0.5"/>
+                        
+                        <!-- 顶点高亮圆点 -->
+                        <circle cx="120" cy="48" r="5" fill="url(#dotGradient)" stroke="#6B66DA" stroke-width="2" filter="url(#glow)"/>
+                        <circle cx="188" cy="120" r="5" fill="url(#dotGradient)" stroke="#6B66DA" stroke-width="2" filter="url(#glow)"/>
+                        <circle cx="120" cy="176" r="5" fill="url(#dotGradient)" stroke="#6B66DA" stroke-width="2" filter="url(#glow)"/>
+                        <circle cx="88" cy="120" r="5" fill="url(#dotGradient)" stroke="#6B66DA" stroke-width="2" filter="url(#glow)"/>
+                        
+                        <!-- 中心点 -->
+                        <circle cx="120" cy="120" r="3" fill="#6B66DA" opacity="0.3"/>
+                        
+                        <!-- 标签 -->
+                        <text x="120" y="25" text-anchor="middle" font-size="12" font-weight="bold" fill="#334155">社交能量</text>
+                        <text x="120" y="39" text-anchor="middle" font-size="11" font-weight="800" fill="#6B66DA">90%</text>
+                        
+                        <text x="215" y="116" text-anchor="start" font-size="12" font-weight="bold" fill="#334155">拆家指数</text>
+                        <text x="215" y="130" text-anchor="start" font-size="11" font-weight="800" fill="#6B66DA">85%</text>
+                        
+                        <text x="120" y="230" text-anchor="middle" font-size="12" font-weight="bold" fill="#334155">粘人程度</text>
+                        <text x="120" y="244" text-anchor="middle" font-size="11" font-weight="800" fill="#6B66DA">70%</text>
+                        
+                        <text x="25" y="116" text-anchor="end" font-size="12" font-weight="bold" fill="#334155">通人性</text>
+                        <text x="25" y="130" text-anchor="end" font-size="11" font-weight="800" fill="#6B66DA">40%</text>
+                    </svg>
+                </div>
+                
+                <!-- 数据卡片 -->
+                <div class="flex-1 grid grid-cols-2 gap-4">
+                    <div class="bg-indigo-50 rounded-xl p-4 border-2 border-indigo-100">
+                        <p class="text-indigo-600 text-sm font-semibold mb-1">社交能量 🔥</p>
+                        <p class="text-3xl font-black text-indigo-600">90%</p>
+                        <div class="w-full h-2.5 bg-indigo-100 rounded-full mt-2">
+                            <div class="w-[90%] h-full bg-indigo-500 rounded-full"/>
+                        </div>
+                    </div>
+                    <div class="bg-rose-50 rounded-xl p-4 border-2 border-rose-100">
+                        <p class="text-rose-600 text-sm font-semibold mb-1">拆家指数 🏠</p>
+                        <p class="text-3xl font-black text-rose-600">85%</p>
+                        <div class="w-full h-2.5 bg-rose-100 rounded-full mt-2">
+                            <div class="w-[85%] h-full bg-rose-500 rounded-full"/>
+                        </div>
+                    </div>
+                    <div class="bg-pink-50 rounded-xl p-4 border-2 border-pink-100">
+                        <p class="text-pink-600 text-sm font-semibold mb-1">粘人程度 💖</p>
+                        <p class="text-3xl font-black text-pink-600">70%</p>
+                        <div class="w-full h-2.5 bg-pink-100 rounded-full mt-2">
+                            <div class="w-[70%] h-full bg-pink-500 rounded-full"/>
+                        </div>
+                    </div>
+                    <div class="bg-teal-50 rounded-xl p-4 border-2 border-teal-100">
+                        <p class="text-teal-600 text-sm font-semibold mb-1">通人性 🧠</p>
+                        <p class="text-3xl font-black text-teal-600">40%</p>
+                        <div class="w-full h-2.5 bg-teal-100 rounded-full mt-2">
+                            <div class="w-[40%] h-full bg-teal-500 rounded-full"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 组件特性说明 -->
+        <div class="grid md:grid-cols-2 gap-6">
+            <div class="bg-white rounded-2xl shadow-lg p-6">
+                <h3 class="text-lg font-bold text-slate-700 mb-4">组件特性</h3>
+                <ul class="space-y-2 text-slate-600">
+                    <li class="flex items-center gap-2">
+                        <span class="w-2 h-2 bg-indigo-500 rounded-full"/>
+                        纯手工 SVG 实现，零第三方依赖
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <span class="w-2 h-2 bg-indigo-500 rounded-full"/>
+                        viewBox="0 0 240 240"，中心点 (120, 120)
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <span class="w-2 h-2 bg-indigo-500 rounded-full"/>
+                        4 层同心菱形网格 (25%-100%)
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <span class="w-2 h-2 bg-indigo-500 rounded-full"/>
+                        发光滤镜 + 渐变填充效果
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <span class="w-2 h-2 bg-indigo-500 rounded-full"/>
+                        支持自定义主题色和填充色
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="bg-slate-800 rounded-2xl p-6 text-white">
+                <h3 class="text-lg font-bold mb-4">Props 参数</h3>
+                <pre class="text-sm overflow-x-auto">
+{
+  data: {
+    top: { label: "社交能量", score: 90 },
+    right: { label: "拆家指数", score: 85 },
+    bottom: { label: "粘人程度", score: 70 },
+    left: { label: "通人性", score: 40 }
+  },
+  themeColor: "#6B66DA",
+  fillColor: "rgba(107, 102, 218, 0.35)"
+}
+                </pre>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

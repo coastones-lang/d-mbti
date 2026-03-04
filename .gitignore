@@ -32,3 +32,19 @@ yarn-error.log*
 
 # Logs
 *.log
+
+# Screenshots
+*.png
+*.jpg
+*.jpeg
+
+# OpenCode
+.opencode/
+
+# Screenshots
+*.png
+*.jpg
+*.jpeg
+
+# OpenCode
+.opencode/

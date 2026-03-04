@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D-MBTI 性格小精灵</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #6B66DA 0%, #8B7CF6 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            padding: 40px;
+            margin: 0;
+        }
+        .sprite-container {
+            background: white;
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            text-align: center;
+        }
+        .sprite-container h3 {
+            margin: 15px 0 0 0;
+            font-family: 'Nunito', sans-serif;
+            font-size: 18px;
+            color: #333;
+        }
+        svg {
+            display: block;
+            width: 150px;
+            height: 150px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- 1. E精灵 (外向/社牛) - 阳光黄，跳跃海星状 -->
+<div class="sprite-container">
+    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <!-- 主体: 跳跃的海星状Blob -->
+        <path d="M100 25 
+                 C115 25, 125 35, 130 50
+                 C145 45, 160 50, 165 65
+                 C170 80, 160 95, 150 105
+                 C160 120, 155 140, 140 150
+                 C125 160, 110 150, 100 145
+                 C90 150, 75 160, 60 150
+                 C45 140, 40 120, 50 105
+                 C40 95, 30 80, 35 65
+                 C40 50, 55 45, 70 50
+                 C75 35, 85 25, 100 25Z" 
+              fill="#FFD166"/>
+        
+        <!-- 左手臂 -->
+        <ellipse cx="35" cy="85" rx="18" ry="12" fill="#FFD166" transform="rotate(-30 35 85)"/>
+        
+        <!-- 右手臂 -->
+        <ellipse cx="165" cy="85" rx="18" ry="12" fill="#FFD166" transform="rotate(30 165 85)"/>
+        
+        <!-- 左腿 -->
+        <ellipse cx="65" cy="155" rx="12" ry="18" fill="#FFD166" transform="rotate(-20 65 155)"/>
+        
+        <!-- 右腿 -->
+        <ellipse cx="135" cy="155" rx="12" ry="18" fill="#FFD166" transform="rotate(20 135 155)"/>
+        
+        <!-- 左眼 (弯弯的笑眼 ^) -->
+        <path d="M72 78 Q78 72, 84 78" stroke="#2D3748" stroke-width="3" fill="none" stroke-linecap="round"/>
+        
+        <!-- 右眼 (弯弯的笑眼 ^) -->
+        <path d="M116 78 Q122 72, 128 78" stroke="#2D3748" stroke-width="3" fill="none" stroke-linecap="round"/>
+        
+        <!-- 大笑的嘴巴 -->
+        <path d="M85 92 Q100 110, 115 92 Q100 95, 85 92" fill="#FF6B6B"/>
+        <path d="M88 95 Q100 105, 112 95" fill="#FFFFFF"/>
+        
+        <!-- 左腮红 -->
+        <ellipse cx="55" cy="95" rx="10" ry="6" fill="#FF9A8B" opacity="0.6"/>
+        
+        <!-- 右腮红 -->
+        <ellipse cx="145" cy="95" rx="10" ry="6" fill="#FF9A8B" opacity="0.6"/>
+        
+        <!-- 星星装饰 1 -->
+        <path d="M155 35 L158 42 L165 43 L160 48 L162 55 L155 51 L148 55 L150 48 L145 43 L152 42Z" fill="#FFE66D"/>
+        
+        <!-- 星星装饰 2 -->
+        <path d="M175 60 L177 65 L182 66 L178 70 L179 75 L175 72 L171 75 L172 70 L168 66 L173 65Z" fill="#FFE66D"/>
+    </svg>
+    <h3>E精灵 · 外向</h3>
+</div>
+
+<!-- 2. I精灵 (内向/高冷) - 宁静蓝，水滴抱枕状 -->
+<div class="sprite-container">
+    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <!-- 主体: 圆润的水滴/抱枕形状 -->
+        <path d="M100 35
+                 C130 35, 155 55, 160 85
+                 C165 115, 150 145, 120 158
+                 C100 166, 80 160, 65 145
+                 C45 125, 40 95, 50 70
+                 C60 45, 80 35, 100 35Z" 
+              fill="#4D96FF"/>
+        
+        <!-- 左小手 -->
+        <ellipse cx="45" cy="110" rx="12" ry="10" fill="#4D96FF"/>
+        
+        <!-- 右小手 -->
+        <ellipse cx="155" cy="110" rx="12" ry="10" fill="#4D96FF"/>
+        
+        <!-- 左小脚 -->
+        <ellipse cx="70" cy="160" rx="10" ry="8" fill="#4D96FF"/>
+        
+        <!-- 右小脚 -->
+        <ellipse cx="130" cy="160" rx="10" ry="8" fill="#4D96FF"/>
+        
+        <!-- 圆框眼镜左 -->
+        <circle cx="78" cy="88" r="14" stroke="#2D3748" stroke-width="2.5" fill="none"/>
+        
+        <!-- 圆框眼镜右 -->
+        <circle cx="122" cy="88" r="14" stroke="#2D3748" stroke-width="2.5" fill="none"/>
+        
+        <!-- 眼镜中梁 -->
+        <line x1="92" y1="88" x2="108" y2="88" stroke="#2D3748" stroke-width="2.5"/>
+        
+        <!-- 左眼 (圆点，在眼镜内) -->
+        <circle cx="78" cy="88" r="4" fill="#2D3748"/>
+        
+        <!-- 右眼 (圆点，在眼镜内) -->
+        <circle cx="122" cy="88" r="4" fill="#2D3748"/>
+        
+        <!-- 平静的小嘴 (一字) -->
+        <line x1="92" y1="115" x2="108" y2="115" stroke="#2D3748" stroke-width="2.5" stroke-linecap="round"/>
+        
+        <!-- 左腮红 -->
+        <ellipse cx="55" cy="100" rx="8" ry="5" fill="#FFB4BA" opacity="0.5"/>
+        
+        <!-- 右腮红 -->
+        <ellipse cx="145" cy="100" rx="8" ry="5" fill="#FFB4BA" opacity="0.5"/>
+        
+        <!-- Zzz 符号 -->
+        <text x="145" y="55" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="#4D96FF" opacity="0.7">Z</text>
+        <text x="155" y="40" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#4D96FF" opacity="0.5">z</text>
+        <text x="165" y="28" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#4D96FF" opacity="0.3">z</text>
+    </svg>
+    <h3>I精灵 · 内向</h3>
+</div>
+
+<!-- 3. P精灵 (随性/拆家) - 珊瑚粉，奔跑流体状 -->
+<div class="sprite-container">
+    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <!-- 主体: 拉伸的奔跑流体形状 -->
+        <path d="M85 45
+                 C110 40, 135 50, 145 70
+                 C155 90, 150 115, 140 130
+                 C135 140, 145 155, 160 160
+                 C170 163, 165 170, 155 170
+                 C140 170, 125 160, 115 145
+                 C100 150, 80 145, 65 135
+                 C45 120, 40 95, 50 75
+                 C58 58, 70 48, 85 45Z" 
+              fill="#FF6B6B"/>
+        
+        <!-- 左臂 (向后摆动) -->
+        <ellipse cx="40" cy="95" rx="15" ry="10" fill="#FF6B6B" transform="rotate(-40 40 95)"/>
+        
+        <!-- 右腿 (迈得很大) -->
+        <ellipse cx="170" cy="165" rx="20" ry="12" fill="#FF6B6B" transform="rotate(10 170 165)"/>
+        
+        <!-- 后腿 -->
+        <ellipse cx="60" cy="140" rx="12" ry="15" fill="#FF6B6B" transform="rotate(30 60 140)"/>
+        
+        <!-- 左眼 (圆点) -->
+        <circle cx="95" cy="80" r="5" fill="#2D3748"/>
+        
+        <!-- 右眼 (眨眼 < 字形) -->
+        <path d="M118 77 L125 80 L118 83" stroke="#2D3748" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        
+        <!-- 吐舌头 -->
+        <ellipse cx="108" cy="105" rx="6" ry="10" fill="#FF8BA7"/>
+        <line x1="108" y1="105" x2="108" y2="115" stroke="#FF4757" stroke-width="1"/>
+        
+        <!-- 调皮的小嘴 -->
+        <path d="M95 98 Q108 108, 121 98" stroke="#2D3748" stroke-width="2" fill="none" stroke-linecap="round"/>
+        
+        <!-- 左腮红 -->
+        <ellipse cx="75" cy="95" rx="9" ry="5" fill="#FFB4BA" opacity="0.6"/>
+        
+        <!-- 反向棒球帽 -->
+        <path d="M75 55 C85 45, 115 45, 125 55 L125 65 C115 60, 85 60, 75 65Z" fill="#FFD93D"/>
+        <path d="M120 58 L140 62 L138 68 L118 65Z" fill="#FFD93D"/>
+        <circle cx="85" cy="52" r="4" fill="#FFFFFF" opacity="0.8"/>
+        <circle cx="115" cy="52" r="4" fill="#FFFFFF" opacity="0.8"/>
+    </svg>
+    <h3>P精灵 · 随性</h3>
+</div>
+
+<!-- 4. J精灵 (守序/乖巧) - 薄荷绿，对称团子 -->
+<div class="sprite-container">
+    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <!-- 主体: 对称端正的小团子 -->
+        <path d="M100 40
+                 C125 40, 150 55, 155 85
+                 C160 110, 150 140, 130 155
+                 C115 165, 85 165, 70 155
+                 C50 140, 40 110, 45 85
+                 C50 55, 75 40, 100 40Z" 
+              fill="#06D6A0"/>
+        
+        <!-- 左小手 (端正放好) -->
+        <ellipse cx="50" cy="115" rx="12" ry="10" fill="#06D6A0"/>
+        
+        <!-- 右小手 (抱着骨头) -->
+        <ellipse cx="150" cy="115" rx="12" ry="10" fill="#06D6A0"/>
+        
+        <!-- 左小脚 -->
+        <ellipse cx="75" cy="165" rx="11" ry="9" fill="#06D6A0"/>
+        
+        <!-- 右小脚 -->
+        <ellipse cx="125" cy="165" rx="11" ry="9" fill="#06D6A0"/>
+        
+        <!-- 左眼 (圆点) -->
+        <circle cx="82" cy="88" r="5" fill="#2D3748"/>
+        
+        <!-- 右眼 (圆点) -->
+        <circle cx="118" cy="88" r="5" fill="#2D3748"/>
+        
+        <!-- 标准微笑 -->
+        <path d="M88 105 Q100 115, 112 105" stroke="#2D3748" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        
+        <!-- 左腮红 -->
+        <ellipse cx="65" cy="100" rx="9" ry="5" fill="#FFB4BA" opacity="0.5"/>
+        
+        <!-- 右腮红 -->
+        <ellipse cx="135" cy="100" rx="9" ry="5" fill="#FFB4BA" opacity="0.5"/>
+        
+        <!-- 头顶光环 -->
+        <ellipse cx="100" cy="32" rx="35" ry="8" stroke="#FFD700" stroke-width="3" fill="none" opacity="0.9"/>
+        <ellipse cx="100" cy="32" rx="25" ry="5" stroke="#FFE66D" stroke-width="2" fill="none" opacity="0.6"/>
+        
+        <!-- 简单的白色骨头 -->
+        <g transform="translate(135, 105) rotate(15)">
+            <rect x="0" y="-6" width="28" height="12" rx="3" fill="#FFFFFF"/>
+            <circle cx="0" cy="-6" r="5" fill="#FFFFFF"/>
+            <circle cx="0" cy="6" r="5" fill="#FFFFFF"/>
+            <circle cx="28" cy="-6" r="5" fill="#FFFFFF"/>
+            <circle cx="28" cy="6" r="5" fill="#FFFFFF"/>
+        </g>
+    </svg>
+    <h3>J精灵 · 守序</h3>
+</div>
+
+</body>
+</html>

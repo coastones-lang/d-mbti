@@ -5,191 +5,700 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>D-MBTI 狗狗性格测试</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap');
+        * {
+            font-family: 'Nunito', sans-serif;
+        }
         
         body {
-            font-family: 'Noto Sans SC', sans-serif;
+            background: linear-gradient(135deg, #6B66DA 0%, #8B7CF6 50%, #A78BFA 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
         }
         
-        .option-card {
-            transition: all 0.2s ease;
+        /* 几何装饰背景 */
+        .bg-decoration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
         }
         
-        .option-card:hover {
-            transform: translateY(-2px);
+        .bg-decoration > * {
+            position: absolute;
+            opacity: 0.15;
         }
         
-        .option-card.selected {
-            border-color: #8B5CF6;
-            background-color: #F5F3FF;
+        /* 星星 */
+        .star {
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
         }
         
-        .progress-bar {
-            transition: width 0.3s ease;
+        /* 三角形 */
+        .triangle {
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
         }
         
-        .fade-in {
-            animation: fadeIn 0.3s ease;
+        /* 药丸按钮动画 */
+        .pill-btn {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        .pill-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 20px 40px -10px rgba(255, 255, 255, 0.4);
         }
         
-        .paw-pattern {
-            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 15c-2.5 0-5 2.5-5 5s2.5 5 5 5 5-2.5 5-5-2.5-5-5-5zm-15 10c-2.5 0-5 2.5-5 5s2.5 5 5 5 5-2.5 5-5-2.5-5-5-5zm30 0c-2.5 0-5 2.5-5 5s2.5 5 5 5 5-2.5 5-5-2.5-5-5-5zm-15 20c-4 0-7.5 3-8.5 7-.5 2 1 4 3.5 4s4.5-1 5-3c.5-2 1-4 0-6zm-14 8c-1.5 0-2.5 1-2.5 2.5s1 2.5 2.5 2.5 2.5-1 2.5-2.5-1-2.5-2.5-2.5zm29 0c-1.5 0-2.5 1-2.5 2.5s1 2.5 2.5 2.5 2.5-1 2.5-2.5-1-2.5-2.5-2.5z' fill='%238B5CF6' fill-opacity='0.05'/%3E%3C/svg%3E");
+        .pill-btn:active {
+            transform: scale(0.98);
+        }
+        
+        /* 卡片悬浮效果 */
+        .float-card {
+            transition: all 0.3s ease;
+        }
+        
+        .float-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 25px 50px -12px rgba(107, 102, 218, 0.35);
+        }
+        
+        /* 选项按钮样式 */
+        .option-btn {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .option-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(139, 124, 246, 0.1);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.4s ease, height 0.4s ease;
+        }
+        
+        .option-btn:hover::before {
+            width: 300%;
+            height: 300%;
+        }
+        
+        .option-btn:hover {
+            background-color: #F3F0FF;
+            border-color: #DDD6FE;
+            transform: translateX(4px);
+        }
+        
+        .option-btn.selected {
+            background: linear-gradient(135deg, #8B7CF6 0%, #6B66DA 100%);
+            border-color: transparent;
+            color: white;
+            transform: scale(1.02);
+        }
+        
+        .option-btn.selected .check-icon {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        .check-icon {
+            opacity: 0;
+            transform: scale(0);
+            transition: all 0.3s ease;
+        }
+        
+        /* 进度条动画 */
+        .progress-fill {
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        /* 题目切换动画 */
+        .slide-container {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .slide-enter-right {
+            animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        
+        .slide-enter-left {
+            animation: slideInLeft 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        
+        .slide-exit-left {
+            animation: slideOutLeft 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        
+        .slide-exit-right {
+            animation: slideOutRight 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes slideOutLeft {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(-100%);
+            }
+        }
+        
+        @keyframes slideOutRight {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+        }
+        
+        /* 淡入动画 */
+        .fade-in-up {
+            animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* 浮动动画 */
+        .float-animation {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        /* 旋转动画 */
+        .spin-slow {
+            animation: spin 8s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        /* 脉冲动画 */
+        .pulse-soft {
+            animation: pulseSoft 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulseSoft {
+            0%, 100% { opacity: 0.6; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); }
+        }
+        
+        /* 加载动画 */
+        .loading-paw {
+            animation: pawBounce 0.6s ease-in-out infinite alternate;
+        }
+        
+        .loading-paw:nth-child(2) { animation-delay: 0.1s; }
+        .loading-paw:nth-child(3) { animation-delay: 0.2s; }
+        .loading-paw:nth-child(4) { animation-delay: 0.3s; }
+        
+        @keyframes pawBounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-10px); }
+        }
+        
+        /* 结果卡片动画 */
+        .result-reveal {
+            animation: resultReveal 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        
+        @keyframes resultReveal {
+            from {
+                opacity: 0;
+                transform: scale(0.8) translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+        
+        /* 性格小精灵 - 黄色E能量 */
+        .sprite-e {
+            background: linear-gradient(135deg, #FCD34D 0%, #F59E0B 100%);
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+        }
+        
+        .sprite-e::before {
+            content: '';
+            position: absolute;
+            top: 20%;
+            left: 25%;
+            width: 15%;
+            height: 15%;
+            background: #1F2937;
+            border-radius: 50%;
+            box-shadow: 25px 0 0 #1F2937;
+        }
+        
+        .sprite-e::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 35%;
+            width: 30%;
+            height: 15%;
+            background: #1F2937;
+            border-radius: 0 0 50% 50%;
+        }
+        
+        /* 性格小精灵 - 蓝色I能量 */
+        .sprite-i {
+            background: linear-gradient(135deg, #93C5FD 0%, #3B82F6 100%);
+            border-radius: 45%;
+        }
+        
+        .sprite-i::before {
+            content: '';
+            position: absolute;
+            top: 25%;
+            left: 30%;
+            width: 12%;
+            height: 12%;
+            background: #1F2937;
+            border-radius: 50%;
+            box-shadow: 20px 0 0 #1F2937;
+        }
+        
+        .sprite-i::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 40%;
+            width: 20%;
+            height: 8%;
+            background: #1F2937;
+            border-radius: 10px;
+        }
+        
+        /* 隐藏元素 */
+        .hidden-screen {
+            display: none !important;
+        }
+        
+        /* 自定义滚动条 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-purple-50 to-pink-50 min-h-screen paw-pattern">
-    <div id="app" class="container mx-auto px-4 py-8 max-w-lg">
-        <!-- Header -->
-        <header class="text-center mb-8">
-            <h1 class="text-3xl font-bold text-purple-700 mb-2">🐕 D-MBTI</h1>
-            <p class="text-gray-600">狗狗性格类型测试</p>
-        </header>
+<body class="relative">
+    <!-- 几何装饰背景 -->
+    <div class="bg-decoration">
+        <!-- 星星 -->
+        <div class="star w-8 h-8 bg-yellow-300 top-[10%] left-[8%] spin-slow"></div>
+        <div class="star w-6 h-6 bg-pink-300 top-[20%] right-[12%] spin-slow" style="animation-delay: -2s;"></div>
+        <div class="star w-10 h-10 bg-cyan-300 top-[60%] left-[5%] spin-slow" style="animation-delay: -4s;"></div>
+        <div class="star w-5 h-5 bg-yellow-200 top-[80%] right-[8%] spin-slow" style="animation-delay: -1s;"></div>
+        
+        <!-- 三角形 -->
+        <div class="triangle w-12 h-12 bg-pink-400 top-[15%] right-[20%] pulse-soft"></div>
+        <div class="triangle w-8 h-8 bg-cyan-400 top-[70%] left-[15%] pulse-soft" style="animation-delay: -1s;"></div>
+        <div class="triangle w-10 h-10 bg-yellow-400 top-[40%] right-[5%] pulse-soft" style="animation-delay: -2s;"></div>
+        
+        <!-- 圆点 -->
+        <div class="w-4 h-4 bg-white rounded-full top-[25%] left-[20%] pulse-soft"></div>
+        <div class="w-6 h-6 bg-pink-300 rounded-full top-[55%] right-[25%] pulse-soft" style="animation-delay: -0.5s;"></div>
+        <div class="w-3 h-3 bg-yellow-300 rounded-full top-[85%] left-[25%] pulse-soft" style="animation-delay: -1.5s;"></div>
+        <div class="w-5 h-5 bg-cyan-300 rounded-full top-[35%] left-[3%] pulse-soft" style="animation-delay: -2.5s;"></div>
+        
+        <!-- 波浪线 -->
+        <svg class="absolute top-[45%] left-[2%] w-16 h-8 text-white opacity-20" viewBox="0 0 100 20">
+            <path d="M0 10 Q 25 0, 50 10 T 100 10" stroke="currentColor" stroke-width="3" fill="none"/>
+        </svg>
+        <svg class="absolute top-[75%] right-[3%] w-20 h-8 text-pink-200 opacity-30" viewBox="0 0 100 20">
+            <path d="M0 10 Q 25 0, 50 10 T 100 10" stroke="currentColor" stroke-width="3" fill="none"/>
+        </svg>
+        <svg class="absolute top-[5%] right-[35%] w-12 h-6 text-yellow-200 opacity-25" viewBox="0 0 100 20">
+            <path d="M0 10 Q 25 20, 50 10 T 100 10" stroke="currentColor" stroke-width="3" fill="none"/>
+        </svg>
+    </div>
 
-        <!-- Welcome Screen -->
-        <div id="welcome-screen" class="bg-white rounded-2xl shadow-lg p-6 fade-in">
-            <div class="text-center mb-6">
-                <div class="w-24 h-24 mx-auto mb-4 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center text-5xl">
-                    🐕
-                </div>
-                <h2 class="text-xl font-semibold text-gray-800 mb-2">你好，我是 Yoki!</h2>
-                <p class="text-gray-600 text-sm">准备好了解你的狗狗伙伴了吗？</p>
-            </div>
-            
-            <div class="space-y-3 mb-6">
-                <div class="flex items-center gap-3 text-sm text-gray-600">
-                    <span class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center text-purple-600">📝</span>
-                    <span>共 40 道题目</span>
-                </div>
-                <div class="flex items-center gap-3 text-sm text-gray-600">
-                    <span class="w-8 h-8 bg-pink-100 rounded-full flex items-center justify-center text-pink-600">⏱️</span>
-                    <span>约 5 分钟完成</span>
-                </div>
-                <div class="flex items-center gap-3 text-sm text-gray-600">
-                    <span class="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600">🎯</span>
-                    <span>了解狗狗的独特性格</span>
-                </div>
-            </div>
+    <!-- 性格小精灵装饰 -->
+    <div class="fixed top-[15%] right-[3%] w-16 h-20 sprite-e float-animation hidden lg:block z-10 shadow-lg"></div>
+    <div class="fixed bottom-[20%] left-[2%] w-14 h-16 sprite-i float-animation hidden lg:block z-10 shadow-lg" style="animation-delay: -1.5s;"></div>
 
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">输入狗狗的名字（可选）</label>
-                <input 
-                    type="text" 
-                    id="dog-name" 
-                    value="Yoki"
-                    class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    placeholder="比如: 豆豆、旺财..."
-                >
-            </div>
+    <!-- 主容器 -->
+    <div id="app" class="relative z-10 container mx-auto px-4 py-6 max-w-lg min-h-screen flex flex-col">
+        
+        <!-- 首页 / Landing Page -->
+        <div id="welcome-screen" class="flex-1 flex flex-col justify-center">
+            <div class="fade-in-up">
+                <!-- 品牌 Logo -->
+                <div class="text-center mb-8">
+                    <div class="relative inline-block">
+                        <!-- 狗狗大脑/云朵 Logo -->
+                        <div class="w-32 h-32 mx-auto mb-4 relative">
+                            <div class="absolute inset-0 bg-white rounded-full shadow-2xl flex items-center justify-center">
+                                <svg viewBox="0 0 120 120" class="w-24 h-24">
+                                    <!-- 云朵身体 -->
+                                    <ellipse cx="60" cy="70" rx="35" ry="25" fill="#8B7CF6"/>
+                                    <circle cx="40" cy="60" r="18" fill="#8B7CF6"/>
+                                    <circle cx="80" cy="60" r="18" fill="#8B7CF6"/>
+                                    <circle cx="60" cy="50" r="20" fill="#8B7CF6"/>
+                                    <!-- 左耳 -->
+                                    <ellipse cx="25" cy="65" rx="10" ry="18" fill="#7C3AED" transform="rotate(-30 25 65)"/>
+                                    <!-- 右耳 -->
+                                    <ellipse cx="95" cy="65" rx="10" ry="18" fill="#7C3AED" transform="rotate(30 95 65)"/>
+                                    <!-- 眼睛 -->
+                                    <circle cx="48" cy="68" r="5" fill="#1F2937"/>
+                                    <circle cx="72" cy="68" r="5" fill="#1F2937"/>
+                                    <!-- 鼻子 -->
+                                    <ellipse cx="60" cy="78" rx="6" ry="4" fill="#1F2937"/>
+                                    <!-- 腮红 -->
+                                    <ellipse cx="35" cy="75" rx="6" ry="4" fill="#F9A8D4" opacity="0.6"/>
+                                    <ellipse cx="85" cy="75" rx="6" ry="4" fill="#F9A8D4" opacity="0.6"/>
+                                </svg>
+                            </div>
+                            <!-- 闪光装饰 -->
+                            <div class="absolute -top-2 -right-2 w-6 h-6 star bg-yellow-300 spin-slow"></div>
+                        </div>
+                        <h1 class="text-4xl font-black text-white mb-2 tracking-tight">D-MBTI</h1>
+                        <p class="text-white/80 text-lg font-semibold">🐾 探索狗狗的内心世界</p>
+                    </div>
+                </div>
 
-            <button 
-                onclick="startQuiz()"
-                class="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 px-6 rounded-xl font-semibold hover:from-purple-600 hover:to-pink-600 transition-all shadow-lg hover:shadow-xl"
-            >
-                开始测试 🐾
-            </button>
+                <!-- 主卡片 -->
+                <div class="bg-white rounded-[2rem] shadow-2xl shadow-indigo-900/30 p-8 float-card">
+                    <div class="text-center mb-6">
+                        <h2 class="text-2xl font-extrabold text-slate-800 mb-2">你好呀！👋</h2>
+                        <p class="text-slate-500 font-medium">准备好了解你的毛孩子了吗？</p>
+                    </div>
+                    
+                    <!-- 特性列表 -->
+                    <div class="space-y-3 mb-6">
+                        <div class="flex items-center gap-4 p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl">
+                            <div class="w-12 h-12 bg-gradient-to-br from-purple-400 to-pink-400 rounded-xl flex items-center justify-center text-xl shadow-lg">
+                                📝
+                            </div>
+                            <div>
+                                <p class="font-bold text-slate-700">40 道趣味题目</p>
+                                <p class="text-sm text-slate-500">全面了解狗狗性格</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4 p-3 bg-gradient-to-r from-cyan-50 to-blue-50 rounded-2xl">
+                            <div class="w-12 h-12 bg-gradient-to-br from-cyan-400 to-blue-400 rounded-xl flex items-center justify-center text-xl shadow-lg">
+                                ⏱️
+                            </div>
+                            <div>
+                                <p class="font-bold text-slate-700">只需 5 分钟</p>
+                                <p class="text-sm text-slate-500">快速获得结果</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4 p-3 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-2xl">
+                            <div class="w-12 h-12 bg-gradient-to-br from-yellow-400 to-orange-400 rounded-xl flex items-center justify-center text-xl shadow-lg">
+                                🎯
+                            </div>
+                            <div>
+                                <p class="font-bold text-slate-700">16 种性格类型</p>
+                                <p class="text-sm text-slate-500">发现独特个性</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 输入框 -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-bold text-slate-600 mb-2">狗狗叫什么名字？</label>
+                        <div class="relative">
+                            <input 
+                                type="text" 
+                                id="dog-name" 
+                                value="Yoki"
+                                class="w-full px-5 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:outline-none focus:border-purple-400 focus:bg-white transition-all text-slate-700 font-bold text-lg text-center"
+                                placeholder="输入名字..."
+                            >
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-2xl">🐕</span>
+                        </div>
+                    </div>
+
+                    <!-- 开始按钮 -->
+                    <button 
+                        onclick="startQuiz()"
+                        class="w-full pill-btn bg-gradient-to-r from-pink-400 via-rose-400 to-coral-400 text-white py-4 px-8 rounded-full font-extrabold text-lg shadow-xl shadow-pink-500/40"
+                        style="background: linear-gradient(135deg, #FB7185 0%, #F472B6 50%, #FB923C 100%);"
+                    >
+                        开始测试 🚀
+                    </button>
+                </div>
+            </div>
         </div>
 
-        <!-- Quiz Screen -->
-        <div id="quiz-screen" class="hidden">
-            <!-- Progress -->
-            <div class="mb-6">
-                <div class="flex justify-between text-sm text-gray-600 mb-2">
-                    <span>题目 <span id="current-q">1</span> / <span id="total-q">40</span></span>
-                    <span id="progress-percent">0%</span>
-                </div>
-                <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
-                    <div id="progress-bar" class="progress-bar h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full" style="width: 0%"></div>
-                </div>
-            </div>
-
-            <!-- Question Card -->
-            <div id="question-card" class="bg-white rounded-2xl shadow-lg p-6 fade-in">
-                <div class="flex items-center gap-2 mb-4">
-                    <span id="category-badge" class="px-3 py-1 bg-purple-100 text-purple-600 text-xs rounded-full font-medium">
-                        社交性
+        <!-- 答题页 / Quiz Page -->
+        <div id="quiz-screen" class="hidden-screen flex-1 flex flex-col">
+            <!-- 顶部紫色区域 - 进度条 -->
+            <div class="bg-white/10 backdrop-blur-sm rounded-3xl p-4 mb-4">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-white font-bold">
+                        <span id="current-q">1</span> / <span id="total-q">40</span>
                     </span>
+                    <span id="progress-percent" class="text-white/80 font-semibold">0%</span>
                 </div>
-                
-                <h2 id="question-text" class="text-lg font-medium text-gray-800 mb-6">
-                    Yoki见到陌生人时，通常会：
-                </h2>
-
-                <div id="options" class="space-y-3">
-                    <!-- Options will be dynamically inserted -->
+                <div class="h-3 bg-white/20 rounded-full overflow-hidden">
+                    <div id="progress-bar" class="progress-fill h-full rounded-full bg-gradient-to-r from-yellow-300 via-pink-400 to-rose-400" style="width: 0%"></div>
                 </div>
             </div>
 
-            <!-- Navigation -->
-            <div class="flex justify-between mt-6">
+            <!-- 题目卡片区域 -->
+            <div class="flex-1 relative">
+                <div id="question-container" class="slide-container">
+                    <div id="question-card" class="bg-white rounded-[2rem] shadow-2xl shadow-indigo-900/30 p-6 md:p-8">
+                        <!-- 分类标签 -->
+                        <div class="flex items-center justify-center mb-6">
+                            <span id="category-badge" class="px-5 py-2 bg-gradient-to-r from-purple-100 to-pink-100 text-purple-600 text-sm font-bold rounded-full">
+                                社交性
+                            </span>
+                        </div>
+                        
+                        <!-- 题目文字 -->
+                        <h2 id="question-text" class="text-xl md:text-2xl font-extrabold text-slate-800 text-center mb-8 leading-relaxed">
+                            当外卖员敲门时，Yoki 通常会...
+                        </h2>
+
+                        <!-- 选项列表 -->
+                        <div id="options" class="space-y-3">
+                            <!-- 选项将动态插入 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 底部导航 -->
+            <div class="flex justify-between items-center mt-4 px-2">
                 <button 
                     id="prev-btn"
                     onclick="prevQuestion()"
-                    class="px-6 py-2 text-gray-600 hover:text-gray-800 disabled:opacity-50"
+                    class="px-6 py-3 text-white/80 font-bold hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all flex items-center gap-2"
                     disabled
                 >
-                    ← 上一题
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                    上一题
                 </button>
+                
+                <!-- 题目指示点 -->
+                <div id="question-dots" class="flex gap-1.5">
+                    <!-- 动态生成 -->
+                </div>
+                
                 <button 
                     id="next-btn"
                     onclick="nextQuestion()"
-                    class="px-6 py-2 bg-purple-100 text-purple-600 rounded-lg font-medium hover:bg-purple-200 disabled:opacity-50"
+                    class="px-6 py-3 bg-white text-purple-600 font-extrabold rounded-full shadow-lg hover:shadow-xl hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all flex items-center gap-2"
                     disabled
                 >
-                    下一题 →
+                    下一题
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
+                    </svg>
                 </button>
             </div>
         </div>
 
-        <!-- Loading -->
-        <div id="loading" class="hidden text-center py-12">
-            <div class="w-12 h-12 mx-auto mb-4 border-4 border-purple-200 border-t-purple-500 rounded-full animate-spin"></div>
-            <p class="text-gray-600">正在分析性格中...</p>
+        <!-- 加载页 / Loading -->
+        <div id="loading" class="hidden-screen flex-1 flex flex-col items-center justify-center">
+            <div class="text-center">
+                <!-- 小狗爪印动画 -->
+                <div class="flex justify-center gap-3 mb-8">
+                    <div class="loading-paw text-4xl">🐾</div>
+                    <div class="loading-paw text-4xl">🐾</div>
+                    <div class="loading-paw text-4xl">🐾</div>
+                    <div class="loading-paw text-4xl">🐾</div>
+                </div>
+                <p class="text-white text-xl font-bold mb-2">正在分析性格中...</p>
+                <p class="text-white/70">请稍等片刻 🐕</p>
+            </div>
         </div>
 
-        <!-- Result Screen -->
-        <div id="result-screen" class="hidden fade-in">
-            <div class="bg-white rounded-2xl shadow-lg p-6 text-center">
-                <div class="mb-6">
-                    <p class="text-gray-600 mb-2" id="result-dog-name">Yoki 的性格类型</p>
-                    <div class="inline-block px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl text-white">
-                        <span class="text-5xl font-bold tracking-wider" id="mbti-type">ENFP</span>
+        <!-- 结果页 / Result Page -->
+        <div id="result-screen" class="hidden-screen flex-1 flex flex-col items-center justify-center py-4">
+            <!-- 结果海报容器 -->
+            <div id="result-poster" class="relative w-full max-w-[340px] aspect-[9/16] bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 rounded-[2rem] overflow-hidden shadow-2xl mb-4">
+                <!-- 装饰背景 -->
+                <div class="absolute inset-0 overflow-hidden pointer-events-none">
+                    <div class="absolute top-10 left-6 w-3 h-3 bg-yellow-300 rounded-full opacity-70"></div>
+                    <div class="absolute top-24 right-8 w-4 h-4 bg-pink-300 rounded-full opacity-50"></div>
+                    <div class="absolute bottom-48 left-8 w-2 h-2 bg-cyan-300 rounded-full opacity-60"></div>
+                    <div class="absolute top-36 left-10 w-2 h-2 bg-white rounded-full opacity-40"></div>
+                </div>
+
+                <!-- Header -->
+                <div class="relative pt-8 pb-3 text-center">
+                    <p class="text-white/90 text-sm font-medium mb-2 tracking-wider" id="poster-dog-name">Yoki 的专属灵魂鉴定</p>
+                    <div class="inline-block px-7 py-2 bg-gradient-to-r from-yellow-300 to-amber-400 rounded-full shadow-lg">
+                        <span class="text-2xl font-black text-white tracking-widest" id="poster-mbti">ENFP</span>
                     </div>
                 </div>
 
-                <div class="text-left bg-purple-50 rounded-xl p-4 mb-6">
-                    <p id="result-description" class="text-gray-700 leading-relaxed whitespace-pre-line">
-                        性格描述内容...
-                    </p>
-                </div>
+                <!-- 核心视觉区 -->
+                <div class="mx-4 mb-3">
+                    <div class="bg-white rounded-[1.5rem] p-4 shadow-xl">
+                        <!-- 小精灵 -->
+                        <div class="w-20 h-20 mx-auto mb-2" id="poster-sprite">
+                            <!-- 动态插入 SVG -->
+                        </div>
+                        
+                        <!-- 称号 -->
+                        <h2 class="text-xl font-black text-slate-800 text-center mb-1" id="poster-title">快乐小疯子</h2>
+                        
+                        <!-- 金句 -->
+                        <p class="text-slate-500 text-center italic text-xs px-2 mb-3" id="poster-quote">"只要我跑得够快，烦恼就追不上我！"</p>
 
-                <!-- Score Breakdown -->
-                <div class="mb-6">
-                    <h3 class="text-sm font-medium text-gray-600 mb-3">维度得分</h3>
-                    <div id="score-breakdown" class="space-y-2">
-                        <!-- Scores will be inserted here -->
+                        <!-- 雷达图数据可视化 -->
+                        <div class="bg-slate-50 rounded-xl p-3">
+                            <div class="flex items-center justify-center gap-2">
+                                <!-- 左侧标签 -->
+                                <div class="text-right space-y-2">
+                                    <div>
+                                        <p class="text-[10px] font-bold text-slate-600" id="radar-label-top">社交能量</p>
+                                        <p class="text-xs font-black text-yellow-500" id="radar-score-top">90%</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-[10px] font-bold text-slate-600" id="radar-label-left">通人性</p>
+                                        <p class="text-xs font-black text-yellow-500" id="radar-score-left">40%</p>
+                                    </div>
+                                </div>
+                                
+                                <!-- 雷达图 SVG -->
+                                <div class="w-24 h-24" id="radar-chart-container">
+                                    <!-- 动态插入雷达图 -->
+                                </div>
+                                
+                                <!-- 右侧标签 -->
+                                <div class="text-left space-y-2">
+                                    <div>
+                                        <p class="text-[10px] font-bold text-slate-600" id="radar-label-right">拆家指数</p>
+                                        <p class="text-xs font-black text-yellow-500" id="radar-score-right">85%</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-[10px] font-bold text-slate-600" id="radar-label-bottom">粘人程度</p>
+                                        <p class="text-xs font-black text-yellow-500" id="radar-score-bottom">70%</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="flex gap-3">
-                    <button 
-                        onclick="shareResult()"
-                        class="flex-1 py-3 px-4 bg-pink-100 text-pink-600 rounded-xl font-medium hover:bg-pink-200 transition-colors"
-                    >
-                        📤 分享结果
-                    </button>
-                    <button 
-                        onclick="restartQuiz()"
-                        class="flex-1 py-3 px-4 bg-purple-100 text-purple-600 rounded-xl font-medium hover:bg-purple-200 transition-colors"
-                    >
-                        🔄 再测一次
-                    </button>
+                <!-- Match 区 -->
+                <div class="mx-4 mb-3">
+                    <div class="bg-white/20 backdrop-blur-sm rounded-xl p-3 text-center">
+                        <p class="text-white text-xs mb-1">
+                            最佳人类伴侣：<span class="font-bold text-yellow-300" id="poster-match">INTJ / INFJ</span>
+                        </p>
+                        <p class="text-white/70 text-[10px] italic" id="poster-advice">"建议主人多备点速效救心丸和耐咬胶 🦴"</p>
+                    </div>
                 </div>
+
+                <!-- Footer -->
+                <div class="absolute bottom-0 left-0 right-0 px-4 pb-3 pt-2 bg-gradient-to-t from-black/30 to-transparent">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-white font-black text-base">D-MBTI</p>
+                            <p class="text-white/60 text-[9px]">狗狗性格测试</p>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <div class="w-10 h-10 bg-white rounded-lg p-1 shadow-lg">
+                                <svg viewBox="0 0 32 32" class="w-full h-full">
+                                    <rect x="4" y="4" width="8" height="8" fill="#1e293b"/>
+                                    <rect x="20" y="4" width="8" height="8" fill="#1e293b"/>
+                                    <rect x="4" y="20" width="8" height="8" fill="#1e293b"/>
+                                    <rect x="12" y="12" width="8" height="8" fill="#1e293b"/>
+                                    <rect x="20" y="20" width="8" height="8" fill="#1e293b"/>
+                                </svg>
+                            </div>
+                            <p class="text-white/70 text-[7px] mt-0.5">扫码测测你的狗</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 操作按钮 -->
+            <div class="flex gap-3 w-full max-w-[340px]">
+                <button 
+                    onclick="savePoster()"
+                    class="flex-1 py-3 px-4 bg-gradient-to-r from-pink-400 via-rose-400 to-orange-400 text-white rounded-2xl font-extrabold hover:scale-105 transition-all flex items-center justify-center gap-2 shadow-lg"
+                >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                    </svg>
+                    保存海报
+                </button>
+                <button 
+                    onclick="restartQuiz()"
+                    class="flex-1 py-3 px-4 bg-white text-purple-600 rounded-2xl font-extrabold hover:bg-purple-50 transition-all flex items-center justify-center gap-2 shadow-lg"
+                >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                    </svg>
+                    再测一次
+                </button>
             </div>
         </div>
     </div>
@@ -200,15 +709,18 @@
         let currentIndex = 0;
         let answers = {};
         let dogName = 'Yoki';
+        let isAnimating = false;
 
         // ========== Init ==========
+        const API_BASE_URL = 'http://localhost:8001';
+
         async function loadQuestions() {
             try {
-                const response = await fetch('/api/questions');
+                const response = await fetch(`${API_BASE_URL}/api/questions`);
                 const data = await response.json();
-                // API返回 { questions: { categories: [...], questions: [...] } }
                 questions = data.questions.questions;
                 document.getElementById('total-q').textContent = questions.length;
+                renderQuestionDots();
             } catch (error) {
                 console.error('Failed to load questions:', error);
                 alert('加载题目失败，请刷新页面重试');
@@ -217,14 +729,23 @@
 
         function startQuiz() {
             dogName = document.getElementById('dog-name').value || 'Yoki';
-            document.getElementById('welcome-screen').classList.add('hidden');
-            document.getElementById('quiz-screen').classList.remove('hidden');
             
-            if (questions.length === 0) {
-                loadQuestions().then(() => renderQuestion());
-            } else {
-                renderQuestion();
-            }
+            const welcomeScreen = document.getElementById('welcome-screen');
+            const quizScreen = document.getElementById('quiz-screen');
+            
+            welcomeScreen.style.animation = 'fadeOut 0.3s ease forwards';
+            
+            setTimeout(() => {
+                welcomeScreen.classList.add('hidden-screen');
+                quizScreen.classList.remove('hidden-screen');
+                quizScreen.classList.add('slide-enter-right');
+                
+                if (questions.length === 0) {
+                    loadQuestions().then(() => renderQuestion());
+                } else {
+                    renderQuestion();
+                }
+            }, 300);
         }
 
         // ========== Quiz Logic ==========
@@ -232,59 +753,139 @@
             const q = questions[currentIndex];
             const total = questions.length;
 
-            // Update progress
+            // 更新进度
             document.getElementById('current-q').textContent = currentIndex + 1;
             document.getElementById('progress-percent').textContent = Math.round((currentIndex / total) * 100) + '%';
             document.getElementById('progress-bar').style.width = (currentIndex / total * 100) + '%';
 
-            // Update category badge
+            // 更新分类标签
             const categoryNames = {
-                'social': '社交性',
-                'perception': '感知力',
-                'judgment': '判断力',
-                'lifestyle': '生活方式',
-                'energy': '精力模式'
+                'social': '社交性 💬',
+                'perception': '感知力 👀',
+                'judgment': '判断力 🧠',
+                'lifestyle': '生活方式 🏠',
+                'energy': '精力模式 ⚡'
             };
             document.getElementById('category-badge').textContent = categoryNames[q.category] || q.category;
 
-            // Update question text with dog name
+            // 更新题目文字
             document.getElementById('question-text').textContent = q.question.replace(/Yoki/g, dogName);
 
-            // Render options
+            // 渲染选项
             const optionsContainer = document.getElementById('options');
             optionsContainer.innerHTML = q.options.map((opt, idx) => `
-                <div 
-                    class="option-card p-4 border-2 border-gray-100 rounded-xl cursor-pointer ${answers[q.id] === idx ? 'selected' : ''}"
+                <button 
+                    class="option-btn w-full p-4 border-2 border-slate-100 rounded-2xl text-left bg-white hover:border-purple-200 ${answers[q.id] === idx ? 'selected' : ''}"
                     onclick="selectOption(${q.id}, ${idx})"
                 >
-                    <p class="text-gray-700">${opt.text.replace(/Yoki/g, dogName)}</p>
-                </div>
+                    <div class="flex items-center gap-3">
+                        <div class="w-6 h-6 rounded-full border-2 ${answers[q.id] === idx ? 'border-white bg-white' : 'border-slate-300'} flex items-center justify-center flex-shrink-0">
+                            <svg class="check-icon w-4 h-4 ${answers[q.id] === idx ? 'text-purple-600' : 'text-slate-400'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                            </svg>
+                        </div>
+                        <span class="font-semibold ${answers[q.id] === idx ? 'text-white' : 'text-slate-700'}">${opt.text.replace(/Yoki/g, dogName)}</span>
+                    </div>
+                </button>
             `).join('');
 
-            // Update navigation buttons
+            // 更新导航按钮
             document.getElementById('prev-btn').disabled = currentIndex === 0;
             document.getElementById('next-btn').disabled = answers[questions[currentIndex].id] === undefined;
+            
+            // 更新按钮文字
+            const nextBtn = document.getElementById('next-btn');
+            if (currentIndex === total - 1) {
+                nextBtn.innerHTML = `完成 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>`;
+            } else {
+                nextBtn.innerHTML = `下一题 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>`;
+            }
+
+            updateQuestionDots();
+        }
+
+        function renderQuestionDots() {
+            const dotsContainer = document.getElementById('question-dots');
+            dotsContainer.innerHTML = questions.map((_, idx) => `
+                <div class="question-dot w-2 h-2 rounded-full transition-all duration-300 ${idx === 0 ? 'bg-white w-6' : 'bg-white/40'}"></div>
+            `).join('');
+        }
+
+        function updateQuestionDots() {
+            const dots = document.querySelectorAll('.question-dot');
+            dots.forEach((dot, idx) => {
+                if (idx === currentIndex) {
+                    dot.classList.remove('bg-white/40');
+                    dot.classList.add('bg-white', 'w-6');
+                } else if (idx < currentIndex) {
+                    dot.classList.remove('bg-white/40', 'w-6');
+                    dot.classList.add('bg-white/70', 'w-2');
+                } else {
+                    dot.classList.remove('bg-white', 'w-6', 'bg-white/70');
+                    dot.classList.add('bg-white/40', 'w-2');
+                }
+            });
         }
 
         function selectOption(questionId, optionIndex) {
             answers[questionId] = optionIndex;
             renderQuestion();
+            
+            // 延迟后自动进入下一题，让用户看到选中效果
+            setTimeout(() => nextQuestion(), 400);
         }
 
         function prevQuestion() {
-            if (currentIndex > 0) {
+            if (isAnimating || currentIndex <= 0) return;
+            
+            isAnimating = true;
+            const card = document.getElementById('question-card');
+            
+            // 当前卡片向左退出
+            card.classList.add('slide-exit-left');
+            
+            setTimeout(() => {
                 currentIndex--;
                 renderQuestion();
-            }
+                
+                // 新卡片从右侧进入
+                card.classList.remove('slide-exit-left');
+                card.classList.add('slide-enter-right');
+                
+                setTimeout(() => {
+                    card.classList.remove('slide-enter-right');
+                    isAnimating = false;
+                }, 400);
+            }, 400);
         }
 
         function nextQuestion() {
-            if (currentIndex < questions.length - 1) {
+            if (isAnimating || answers[questions[currentIndex].id] === undefined) return;
+            
+            if (currentIndex >= questions.length - 1) {
+                submitQuiz();
+                return;
+            }
+            
+            isAnimating = true;
+            const card = document.getElementById('question-card');
+            
+            // 当前卡片向右退出
+            card.classList.add('slide-exit-right');
+            
+            setTimeout(() => {
                 currentIndex++;
                 renderQuestion();
-            } else {
-                submitQuiz();
-            }
+                
+                // 新卡片从左侧进入
+                card.classList.remove('slide-exit-right');
+                card.classList.add('slide-enter-left');
+                
+                setTimeout(() => {
+                    card.classList.remove('slide-enter-left');
+                    isAnimating = false;
+                }, 400);
+            }, 400);
         }
 
         // ========== Submit ==========
@@ -294,11 +895,14 @@
                 option_index: optIdx
             }));
 
-            document.getElementById('quiz-screen').classList.add('hidden');
-            document.getElementById('loading').classList.remove('hidden');
+            const quizScreen = document.getElementById('quiz-screen');
+            const loading = document.getElementById('loading');
+            
+            quizScreen.classList.add('hidden-screen');
+            loading.classList.remove('hidden-screen');
 
             try {
-                const response = await fetch('/api/submit', {
+                const response = await fetch(`${API_BASE_URL}/api/submit`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -308,32 +912,364 @@
                 });
 
                 const result = await response.json();
-                showResult(result);
+                
+                setTimeout(() => {
+                    loading.classList.add('hidden-screen');
+                    showResult(result);
+                }, 1000);
             } catch (error) {
                 console.error('Failed to submit:', error);
                 alert('提交失败，请重试');
-                document.getElementById('loading').classList.add('hidden');
-                document.getElementById('quiz-screen').classList.remove('hidden');
+                loading.classList.add('hidden-screen');
+                quizScreen.classList.remove('hidden-screen');
             }
         }
 
         // ========== Result ==========
         function showResult(result) {
-            document.getElementById('loading').classList.add('hidden');
-            document.getElementById('result-screen').classList.remove('hidden');
+            const resultScreen = document.getElementById('result-screen');
+            resultScreen.classList.remove('hidden-screen');
+            
+            // 填充海报数据
+            document.getElementById('poster-dog-name').textContent = `${dogName} 的专属灵魂鉴定`;
+            document.getElementById('poster-mbti').textContent = result.mbti_type;
+            
+            // 根据 MBTI 获取称号和描述
+            const personalityInfo = getPersonalityInfo(result.mbti_type);
+            document.getElementById('poster-title').textContent = personalityInfo.title;
+            document.getElementById('poster-quote').textContent = `"${personalityInfo.quote}"`;
+            document.getElementById('poster-match').textContent = personalityInfo.match;
+            document.getElementById('poster-advice').textContent = `"${personalityInfo.advice}"`;
+            
+            // 插入性格小精灵
+            const spriteContainer = document.getElementById('poster-sprite');
+            spriteContainer.innerHTML = getSpriteSVG(result.mbti_type);
+            
+            // 计算雷达图数据 (从 scores 转换)
+            const radarData = calculateRadarData(result.scores);
+            
+            // 更新雷达图标签和分数
+            document.getElementById('radar-label-top').textContent = radarData.top.label;
+            document.getElementById('radar-score-top').textContent = radarData.top.score + '%';
+            document.getElementById('radar-label-right').textContent = radarData.right.label;
+            document.getElementById('radar-score-right').textContent = radarData.right.score + '%';
+            document.getElementById('radar-label-bottom').textContent = radarData.bottom.label;
+            document.getElementById('radar-score-bottom').textContent = radarData.bottom.score + '%';
+            document.getElementById('radar-label-left').textContent = radarData.left.label;
+            document.getElementById('radar-score-left').textContent = radarData.left.score + '%';
+            
+            // 渲染雷达图
+            const radarContainer = document.getElementById('radar-chart-container');
+            radarContainer.innerHTML = renderRadarChart(radarData, result.mbti_type);
+            
+            // 根据主题色更新分数颜色
+            updateScoreColors(result.mbti_type);
+        }
+        
+        // 计算雷达图数据
+        function calculateRadarData(scores) {
+            // 从 MBTI 分数映射到雷达图维度
+            const dimensions = {
+                top: { label: '社交能量', score: 50 },
+                right: { label: '拆家指数', score: 50 },
+                bottom: { label: '粘人程度', score: 50 },
+                left: { label: '通人性', score: 50 }
+            };
+            
+            scores.forEach(s => {
+                const dim = s.dimension.toUpperCase();
+                const percentage = s.percentage || 50;
+                
+                switch(dim) {
+                    case 'E/I':
+                        dimensions.top.score = Math.round(percentage);
+                        break;
+                    case 'S/N':
+                        dimensions.left.score = Math.round(percentage);
+                        break;
+                    case 'T/F':
+                        dimensions.bottom.score = Math.round(percentage);
+                        break;
+                    case 'J/P':
+                        dimensions.right.score = Math.round(100 - percentage); // 拆家指数与守序度相反
+                        break;
+                }
+            });
+            
+            return dimensions;
+        }
+        
+        // 获取性格信息 (使用配置文件数据)
+        const MBTI_PROFILES = {
+            'ENFP': { 
+                title: '快乐小疯子', 
+                quote: '只要我跑得够快，烦恼就追不上我！', 
+                tags: ['社交恐怖分子', '永动机', '阳光小狗'],
+                match: 'INTJ / INFJ', 
+                advice: '多陪TA疯，别指望TA安静' 
+            },
+            'ISTJ': { 
+                title: '退休老干部', 
+                quote: '规矩就是规矩，今天这个门你不能进。', 
+                tags: ['皇家护卫队', '守时达人', '稳如老狗'],
+                match: 'ESFP / ESTP', 
+                advice: '保持规律，TA会是最省心的狗狗' 
+            },
+            'ENTP': { 
+                title: '拆迁办主任', 
+                quote: '我不是在搞破坏，我是在进行空间重构。', 
+                tags: ['战术大师', '智商碾压', '撒手没'],
+                match: 'INFJ / INTJ', 
+                advice: '请准备大量耐咬玩具和坚固的家具' 
+            },
+            'ISFP': { 
+                title: '佛系小甜心', 
+                quote: '你若安好，便是晴天；你若发火，我先装死。', 
+                tags: ['嘤嘤怪', '粘人精', '情绪稳定'],
+                match: 'ESFJ / ENFJ', 
+                advice: '温柔的引导比强制更有效' 
+            },
+            'ESTJ': { 
+                title: '小区巡逻大队长', 
+                quote: '方圆十里，谁敢不服？汪！', 
+                tags: ['霸道总裁', '护主狂魔', '气场两米八'],
+                match: 'ISFP / INFP', 
+                advice: '训练很容易，但不要过于严厉' 
+            },
+            'INTP': { 
+                title: '哲学家', 
+                quote: '人类太复杂了，我还是继续思考这根骨头的意义吧。', 
+                tags: ['独行侠', '眼神高冷', '难以捉摸'],
+                match: 'ENTJ / ESTJ', 
+                advice: '用智力游戏满足TA的好奇心' 
+            },
+            'ENTJ': { 
+                title: '汪星大霸总', 
+                quote: '这个家没我迟早得散，还不快去倒狗粮！', 
+                tags: ['气场压制', '绝对领导权', '智商在线'],
+                match: 'INFP / INTP', 
+                advice: '需要一位有耐心的主人来平衡TA的强势' 
+            },
+            'INTJ': { 
+                title: '高冷战术家', 
+                quote: '人类的愚蠢，总是超乎我的想象。', 
+                tags: ['鄙视链顶端', '独立思考', '眼神拉丝'],
+                match: 'ENFP / ENTP', 
+                advice: '尊重TA的独立，但也要坚持基本训练' 
+            },
+            'ENFJ': { 
+                title: '居委会大妈', 
+                quote: '别吵了别吵了！大家都是好朋友，先互相闻闻屁股吧！', 
+                tags: ['汪星外交官', '和事佬', '操碎了心'],
+                match: 'INFP / ISFP', 
+                advice: '社交消耗能量，记得给TA独处时间' 
+            },
+            'INFJ': { 
+                title: '灵魂伴侣', 
+                quote: '我不仅能听懂你的指令，还能看穿你的灵魂。', 
+                tags: ['专属天使', '极度共情', '敏感多疑'],
+                match: 'ENTP / ENFP', 
+                advice: '理解TA的深度，陪伴是最好的礼物' 
+            },
+            'ESFP': { 
+                title: '气氛组组长', 
+                quote: '只要我翻肚皮的速度够快，就没有要不到的零食！', 
+                tags: ['搞笑担当', '人来疯', '没心没肺'],
+                match: 'ISFJ / ISTJ', 
+                advice: '需要主人有充足的体力陪玩' 
+            },
+            'ISFJ': { 
+                title: '金牌小保姆', 
+                quote: '你放心地去上班吧，这个沙发我替你守着。', 
+                tags: ['贴心小棉袄', '默默守护', '极度忠诚'],
+                match: 'ESFP / ESTP', 
+                advice: 'TA值得最好的照顾和陪伴' 
+            },
+            'ESFJ': { 
+                title: '迎宾大堂经理', 
+                quote: '你看我尾巴摇得像不像直升机？快夸我快夸我！', 
+                tags: ['摇尾巴机器', '极度求生欲', '热情好客'],
+                match: 'ISFP / INFP', 
+                advice: '回报TA的关爱，多多陪伴' 
+            },
+            'ISTP': { 
+                title: '越狱专家', 
+                quote: '笼子？那只是对我柔韧性的一种考验罢了。', 
+                tags: ['动作派', '沉默寡言', '探索欲强'],
+                match: 'ESFJ / ESTJ', 
+                advice: '提供可以"拆解"的安全玩具' 
+            },
+            'ESTP': { 
+                title: '街头小霸王', 
+                quote: '看到那个飞盘了吗？下一秒它就是我的了！', 
+                tags: ['永远在跑', '反应神速', '冲动狂魔'],
+                match: 'ISFJ / ISTJ', 
+                advice: '看好贵重物品，准备户外活动' 
+            },
+            'INFP': { 
+                title: '玻璃心小诗人', 
+                quote: '一片落叶掉下来了，我的心也跟着碎了……求抱抱。', 
+                tags: ['森林小精灵', '敏感娇弱', '幻想家'],
+                match: 'ENFJ / ESFJ', 
+                advice: '给予足够的安全感，不要强迫社交' 
+            }
+        };
 
-            document.getElementById('result-dog-name').textContent = `${dogName} 的性格类型`;
-            document.getElementById('mbti-type').textContent = result.mbti_type;
-            document.getElementById('result-description').textContent = result.description;
-
-            // Score breakdown
-            const breakdown = document.getElementById('score-breakdown');
-            breakdown.innerHTML = result.scores.map(s => `
-                <div class="flex items-center justify-between text-sm">
-                    <span class="text-gray-600">${s.dimension}</span>
-                    <span class="font-medium text-purple-600">${s.letter}</span>
-                </div>
-            `).join('');
+        function getPersonalityInfo(mbti) {
+            return MBTI_PROFILES[mbti] || { 
+                title: '独特个体', 
+                quote: '我是独一无二的存在！', 
+                tags: ['神秘', '独特', '无法定义'],
+                match: '所有类型', 
+                advice: '每只狗狗都值得被理解和爱' 
+            };
+        }
+        
+        // 获取小精灵 SVG
+        function getSpriteSVG(mbti) {
+            const first = mbti.charAt(0);
+            if (first === 'I') {
+                // I精灵 - 宁静蓝
+                return `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+                    <path d="M100 35 C130 35, 155 55, 160 85 C165 115, 150 145, 120 158 C100 166, 80 160, 65 145 C45 125, 40 95, 50 70 C60 45, 80 35, 100 35Z" fill="#4D96FF"/>
+                    <ellipse cx="45" cy="110" rx="12" ry="10" fill="#4D96FF"/>
+                    <ellipse cx="155" cy="110" rx="12" ry="10" fill="#4D96FF"/>
+                    <ellipse cx="70" cy="160" rx="10" ry="8" fill="#4D96FF"/>
+                    <ellipse cx="130" cy="160" rx="10" ry="8" fill="#4D96FF"/>
+                    <circle cx="78" cy="88" r="14" stroke="#2D3748" stroke-width="2.5" fill="none"/>
+                    <circle cx="122" cy="88" r="14" stroke="#2D3748" stroke-width="2.5" fill="none"/>
+                    <line x1="92" y1="88" x2="108" y2="88" stroke="#2D3748" stroke-width="2.5"/>
+                    <circle cx="78" cy="88" r="4" fill="#2D3748"/>
+                    <circle cx="122" cy="88" r="4" fill="#2D3748"/>
+                    <line x1="92" y1="115" x2="108" y2="115" stroke="#2D3748" stroke-width="2.5" stroke-linecap="round"/>
+                    <ellipse cx="55" cy="100" rx="8" ry="5" fill="#FFB4BA" opacity="0.5"/>
+                    <ellipse cx="145" cy="100" rx="8" ry="5" fill="#FFB4BA" opacity="0.5"/>
+                </svg>`;
+            } else {
+                // E精灵 - 阳光黄
+                return `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+                    <path d="M100 25 C115 25, 125 35, 130 50 C145 45, 160 50, 165 65 C170 80, 160 95, 150 105 C160 120, 155 140, 140 150 C125 160, 110 150, 100 145 C90 150, 75 160, 60 150 C45 140, 40 120, 50 105 C40 95, 30 80, 35 65 C40 50, 55 45, 70 50 C75 35, 85 25, 100 25Z" fill="#FFD166"/>
+                    <ellipse cx="35" cy="85" rx="18" ry="12" fill="#FFD166" transform="rotate(-30 35 85)"/>
+                    <ellipse cx="165" cy="85" rx="18" ry="12" fill="#FFD166" transform="rotate(30 165 85)"/>
+                    <ellipse cx="65" cy="155" rx="12" ry="18" fill="#FFD166" transform="rotate(-20 65 155)"/>
+                    <ellipse cx="135" cy="155" rx="12" ry="18" fill="#FFD166" transform="rotate(20 135 155)"/>
+                    <path d="M72 78 Q78 72, 84 78" stroke="#2D3748" stroke-width="3" fill="none" stroke-linecap="round"/>
+                    <path d="M116 78 Q122 72, 128 78" stroke="#2D3748" stroke-width="3" fill="none" stroke-linecap="round"/>
+                    <path d="M85 92 Q100 110, 115 92 Q100 95, 85 92" fill="#FF6B6B"/>
+                    <path d="M88 95 Q100 105, 112 95" fill="#FFFFFF"/>
+                    <ellipse cx="55" cy="95" rx="10" ry="6" fill="#FF9A8B" opacity="0.6"/>
+                    <ellipse cx="145" cy="95" rx="10" ry="6" fill="#FF9A8B" opacity="0.6"/>
+                </svg>`;
+            }
+        }
+        
+        // 渲染雷达图 SVG
+        function renderRadarChart(data, mbti) {
+            const theme = getThemeColor(mbti);
+            const center = 100;
+            const maxRadius = 70;
+            
+            // 计算坐标
+            const scoreToRadius = (score) => (score / 100) * maxRadius;
+            const coords = {
+                top: { x: center, y: center - scoreToRadius(data.top.score) },
+                right: { x: center + scoreToRadius(data.right.score), y: center },
+                bottom: { x: center, y: center + scoreToRadius(data.bottom.score) },
+                left: { x: center - scoreToRadius(data.left.score), y: center }
+            };
+            
+            const polygonPoints = `${coords.top.x},${coords.top.y} ${coords.right.x},${coords.right.y} ${coords.bottom.x},${coords.bottom.y} ${coords.left.x},${coords.left.y}`;
+            
+            // 网格点
+            const grid25 = getGridPoints(0.25, center, maxRadius);
+            const grid50 = getGridPoints(0.5, center, maxRadius);
+            const grid75 = getGridPoints(0.75, center, maxRadius);
+            const grid100 = getGridPoints(1, center, maxRadius);
+            
+            return `<svg viewBox="0 0 200 200" class="w-full h-full">
+                <defs>
+                    <radialGradient id="radarGrad" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stop-color="${theme}" stop-opacity="0.6"/>
+                        <stop offset="100%" stop-color="${theme}" stop-opacity="0.2"/>
+                    </radialGradient>
+                    <radialGradient id="dotGrad" cx="30%" cy="30%" r="70%">
+                        <stop offset="0%" stop-color="#FFFFFF"/>
+                        <stop offset="100%" stop-color="${theme}"/>
+                    </radialGradient>
+                </defs>
+                
+                <polygon points="${grid100}" fill="none" stroke="#E2E8F0" stroke-width="1" opacity="0.9"/>
+                <polygon points="${grid75}" fill="none" stroke="#E2E8F0" stroke-width="1" opacity="0.7"/>
+                <polygon points="${grid50}" fill="none" stroke="#E2E8F0" stroke-width="1" opacity="0.5"/>
+                <polygon points="${grid25}" fill="none" stroke="#E2E8F0" stroke-width="1" opacity="0.3"/>
+                
+                <line x1="100" y1="100" x2="100" y2="30" stroke="#CBD5E1" stroke-width="1" stroke-dasharray="3 3" opacity="0.5"/>
+                <line x1="100" y1="100" x2="170" y2="100" stroke="#CBD5E1" stroke-width="1" stroke-dasharray="3 3" opacity="0.5"/>
+                <line x1="100" y1="100" x2="100" y2="170" stroke="#CBD5E1" stroke-width="1" stroke-dasharray="3 3" opacity="0.5"/>
+                <line x1="100" y1="100" x2="30" y2="100" stroke="#CBD5E1" stroke-width="1" stroke-dasharray="3 3" opacity="0.5"/>
+                
+                <polygon points="${polygonPoints}" fill="${theme}33" stroke="${theme}" stroke-width="2.5" stroke-linejoin="round"/>
+                <polygon points="${polygonPoints}" fill="url(#radarGrad)" opacity="0.5"/>
+                
+                <circle cx="${coords.top.x}" cy="${coords.top.y}" r="4" fill="url(#dotGrad)" stroke="${theme}" stroke-width="1.5"/>
+                <circle cx="${coords.right.x}" cy="${coords.right.y}" r="4" fill="url(#dotGrad)" stroke="${theme}" stroke-width="1.5"/>
+                <circle cx="${coords.bottom.x}" cy="${coords.bottom.y}" r="4" fill="url(#dotGrad)" stroke="${theme}" stroke-width="1.5"/>
+                <circle cx="${coords.left.x}" cy="${coords.left.y}" r="4" fill="url(#dotGrad)" stroke="${theme}" stroke-width="1.5"/>
+                
+                <circle cx="100" cy="100" r="2.5" fill="${theme}" opacity="0.3"/>
+            </svg>`;
+        }
+        
+        function getGridPoints(ratio, center, maxRadius) {
+            const r = maxRadius * ratio;
+            const top = `${center},${center - r}`;
+            const right = `${center + r},${center}`;
+            const bottom = `${center},${center + r}`;
+            const left = `${center - r},${center}`;
+            return `${top} ${right} ${bottom} ${left}`;
+        }
+        
+        function getThemeColor(mbti) {
+            const first = mbti.charAt(0);
+            const second = mbti.charAt(1);
+            if (first === 'E' && second === 'N') return '#FFD166';
+            if (first === 'I') return '#4D96FF';
+            if (first === 'E' && second === 'S') return '#FF6B6B';
+            return '#6B66DA';
+        }
+        
+        function updateScoreColors(mbti) {
+            const theme = getThemeColor(mbti);
+            document.getElementById('radar-score-top').style.color = theme;
+            document.getElementById('radar-score-right').style.color = theme;
+            document.getElementById('radar-score-bottom').style.color = theme;
+            document.getElementById('radar-score-left').style.color = theme;
+        }
+        
+        // 保存海报
+        async function savePoster() {
+            const poster = document.getElementById('result-poster');
+            
+            try {
+                // 使用 html2canvas 截图
+                const canvas = await html2canvas(poster, {
+                    scale: 3,
+                    useCORS: true,
+                    backgroundColor: null,
+                    logging: false
+                });
+                
+                // 下载图片
+                const link = document.createElement('a');
+                link.download = `${dogName}-DMBTI结果.png`;
+                link.href = canvas.toDataURL('image/png', 1.0);
+                link.click();
+                
+                showToast('海报已保存！');
+            } catch (error) {
+                console.error('保存失败:', error);
+                showToast('保存失败，请重试');
+            }
         }
 
         function shareResult() {
@@ -344,21 +1280,39 @@
                 navigator.share({ text });
             } else {
                 navigator.clipboard.writeText(text).then(() => {
-                    alert('已复制到剪贴板！');
+                    // 显示成功提示
+                    showToast('已复制到剪贴板！');
                 });
             }
+        }
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-slate-800 text-white px-6 py-3 rounded-2xl font-bold shadow-2xl z-50 animate-fadeIn';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'fadeOut 0.3s ease forwards';
+                setTimeout(() => toast.remove(), 300);
+            }, 2000);
         }
 
         function restartQuiz() {
             currentIndex = 0;
             answers = {};
-            document.getElementById('result-screen').classList.add('hidden');
-            document.getElementById('welcome-screen').classList.remove('hidden');
+            
+            const resultScreen = document.getElementById('result-screen');
+            const welcomeScreen = document.getElementById('welcome-screen');
+            
+            resultScreen.classList.add('hidden-screen');
+            welcomeScreen.classList.remove('hidden-screen');
+            welcomeScreen.classList.add('fade-in-up');
         }
 
-        // Keyboard navigation
+        // 键盘导航
         document.addEventListener('keydown', (e) => {
-            if (document.getElementById('quiz-screen').classList.contains('hidden')) return;
+            if (document.getElementById('quiz-screen').classList.contains('hidden-screen')) return;
             
             if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
                 nextQuestion();
@@ -366,6 +1320,105 @@
                 prevQuestion();
             }
         });
+
+        // 触摸滑动支持
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, false);
+
+        document.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, false);
+
+        function handleSwipe() {
+            if (document.getElementById('quiz-screen').classList.contains('hidden-screen')) return;
+            
+            const swipeThreshold = 50;
+            const diff = touchStartX - touchEndX;
+            
+            if (Math.abs(diff) > swipeThreshold) {
+                if (diff > 0) {
+                    // 向左滑 - 下一题
+                    nextQuestion();
+                } else {
+                    // 向右滑 - 上一题
+                    prevQuestion();
+                }
+            }
+        }
+
+        // 保存海报为图片
+        async function savePoster() {
+            const poster = document.getElementById('result-poster');
+            if (!poster) {
+                alert('海报加载中，请稍后再试');
+                return;
+            }
+
+            // 检查是否加载了 html2canvas
+            if (typeof html2canvas === 'undefined') {
+                // 动态加载 html2canvas
+                const script = document.createElement('script');
+                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+                script.onload = () => capturePoster();
+                script.onerror = () => alert('加载截图库失败，请检查网络');
+                document.head.appendChild(script);
+            } else {
+                capturePoster();
+            }
+        }
+
+        async function capturePoster() {
+            const poster = document.getElementById('result-poster');
+            const btn = document.querySelector('button[onclick="savePoster()"]');
+            const originalText = btn.innerHTML;
+            
+            try {
+                btn.innerHTML = '<svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> 生成中...';
+                btn.disabled = true;
+
+                const canvas = await html2canvas(poster, {
+                    scale: 3,
+                    useCORS: true,
+                    backgroundColor: null,
+                    logging: false,
+                    width: poster.offsetWidth,
+                    height: poster.offsetHeight
+                });
+                
+                // 下载图片
+                const link = document.createElement('a');
+                link.download = `${dogName}-DMBTI性格海报.png`;
+                link.href = canvas.toDataURL('image/png', 1.0);
+                link.click();
+                
+                showToast('海报已保存！');
+            } catch (error) {
+                console.error('保存海报失败:', error);
+                alert('保存失败，请重试');
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        // 显示提示
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-slate-800 text-white px-6 py-3 rounded-2xl font-bold shadow-2xl z-50';
+            toast.style.animation = 'fadeInUp 0.3s ease';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'fadeOut 0.3s ease forwards';
+                setTimeout(() => toast.remove(), 300);
+            }, 2000);
+        }
     </script>
 </body>
 </html>
