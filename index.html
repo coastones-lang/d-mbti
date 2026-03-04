@@ -1462,45 +1462,6 @@
         }
         
         // 保存海报
-        async function savePoster() {
-            const poster = document.getElementById('result-poster');
-            
-            try {
-                // 使用 html2canvas 截图
-                const canvas = await html2canvas(poster, {
-                    scale: 3,
-                    useCORS: true,
-                    backgroundColor: null,
-                    logging: false
-                });
-                
-                // 下载图片
-                const link = document.createElement('a');
-                link.download = `${dogName}-DMBTI结果.png`;
-                link.href = canvas.toDataURL('image/png', 1.0);
-                link.click();
-                
-                showToast('海报已保存！');
-            } catch (error) {
-                console.error('保存失败:', error);
-                showToast('保存失败，请重试');
-            }
-        }
-
-        function shareResult() {
-            const type = document.getElementById('mbti-type').textContent;
-            const text = `🐕 ${dogName} 的D-MBTI性格类型是 ${type}！\n快来测试你的狗狗吧！`;
-            
-            if (navigator.share) {
-                navigator.share({ text });
-            } else {
-                navigator.clipboard.writeText(text).then(() => {
-                    // 显示成功提示
-                    showToast('已复制到剪贴板！');
-                });
-            }
-        }
-
         function showToast(message) {
             const toast = document.createElement('div');
             toast.className = 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-slate-800 text-white px-6 py-3 rounded-2xl font-bold shadow-2xl z-50 animate-fadeIn';
