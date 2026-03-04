@@ -1238,7 +1238,9 @@
         };
 
         function getPersonalityInfo(mbti) {
-            return MBTI_PROFILES[mbti] || { 
+            // MBTI类型可能是5字符(包含A/C后缀)，取前4字符查找
+            const baseType = mbti.substring(0, 4);
+            return MBTI_PROFILES[baseType] || { 
                 title: '独特个体', 
                 quote: '我是独一无二的存在！', 
                 tags: ['神秘', '独特', '无法定义'],
