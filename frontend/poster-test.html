@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>海报测试</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            background: #f0f0f0; 
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        /* 海报样式 */
+        .poster {
+            width: 360px;
+            height: 760px;
+            background: linear-gradient(to bottom right, #4f46e5, #9333ea, #ec4899);
+            border-radius: 24px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            margin-bottom: 20px;
+        }
+        
+        /* 装饰背景 */
+        .decoration {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+        .decoration .dot {
+            position: absolute;
+            border-radius: 50%;
+        }
+        
+        /* Header 区域 */
+        .header {
+            padding-top: 48px;
+            padding-bottom: 16px;
+            text-align: center;
+        }
+        .header-subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            letter-spacing: 0.05em;
+        }
+        .mbti-badge {
+            display: inline-block;
+            background: linear-gradient(to right, #fcd34d, #f59e0b);
+            padding: 8px 28px;
+            border-radius: 9999px;
+            box-shadow: 0 10px 15px -3px rgba(245, 158, 11, 0.3);
+        }
+        .mbti-text {
+            font-size: 24px;
+            font-weight: 900;
+            color: white;
+            letter-spacing: 0.1em;
+        }
+        
+        /* 核心卡片区域 */
+        .card {
+            margin: 0 16px 16px;
+            background: white;
+            border-radius: 24px;
+            padding: 20px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* 小精灵占位 */
+        .sprite {
+            width: 96px;
+            height: 96px;
+            margin: 0 auto 12px;
+            background: linear-gradient(135deg, #fcd34d, #f59e0b);
+            border-radius: 50%;
+        }
+        
+        /* 称号 */
+        .title {
+            font-size: 24px;
+            font-weight: 900;
+            color: #1e293b;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        /* Tags 区域 */
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 12px;
+            background: #f3e8ff;
+            color: #7c3aed;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        
+        /* 金句 */
+        .quote {
+            text-align: center;
+            color: #64748b;
+            font-style: italic;
+            font-size: 14px;
+            padding: 0 8px;
+            margin-bottom: 16px;
+        }
+        
+        /* 雷达图区域 */
+        .radar-section {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 16px;
+        }
+        .radar-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        .radar-labels {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .radar-labels.left { text-align: right; }
+        .radar-labels.right { text-align: left; }
+        .radar-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #475569;
+        }
+        .radar-score {
+            font-size: 14px;
+            font-weight: 900;
+            color: #eab308;
+        }
+        .radar-chart {
+            width: 112px;
+            height: 112px;
+            background: rgba(124, 58, 237, 0.1);
+            border-radius: 50%;
+        }
+        
+        /* Match 区域 */
+        .match-section {
+            margin: 0 16px 16px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(4px);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        }
+        .match-title {
+            color: white;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        .match-highlight {
+            font-weight: 700;
+            color: #fde047;
+        }
+        .match-advice {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 12px;
+            font-style: italic;
+        }
+        
+        /* Footer */
+        .footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 12px 16px 16px;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.3), transparent);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .footer-brand {
+            color: white;
+        }
+        .footer-brand h3 {
+            font-size: 18px;
+            font-weight: 900;
+        }
+        .footer-brand p {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        .footer-qr {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .qr-code {
+            width: 48px;
+            height: 48px;
+            background: white;
+            border-radius: 8px;
+            padding: 4px;
+            margin-bottom: 4px;
+        }
+        .qr-code-inner {
+            width: 100%;
+            height: 100%;
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        .footer-qr p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="margin-bottom: 20px; font-size: 24px; font-weight: bold;">海报布局测试</h1>
+    
+    <div class="poster">
+        <!-- 装饰背景 -->
+        <div class="decoration">
+            <div class="dot" style="top: 40px; left: 24px; width: 12px; height: 12px; background: rgba(253, 224, 71, 0.7);"></div>
+            <div class="dot" style="top: 96px; right: 32px; width: 16px; height: 16px; background: rgba(249, 168, 212, 0.5);"></div>
+            <div class="dot" style="bottom: 192px; left: 32px; width: 8px; height: 8px; background: rgba(103, 232, 249, 0.6);"></div>
+            <div class="dot" style="top: 144px; left: 40px; width: 8px; height: 8px; background: rgba(255, 255, 255, 0.4);"></div>
+        </div>
+        
+        <!-- Header -->
+        <div class="header">
+            <p class="header-subtitle">Yoki 的专属灵魂鉴定</p>
+            <div class="mbti-badge">
+                <span class="mbti-text">INTP</span>
+            </div>
+        </div>
+        
+        <!-- 核心卡片 -->
+        <div class="card">
+            <!-- 小精灵 -->
+            <div class="sprite"></div>
+            
+            <!-- 称号 -->
+            <h2 class="title">哲学家</h2>
+            
+            <!-- Tags -->
+            <div class="tags-container">
+                <span class="tag">独行侠</span>
+                <span class="tag">眼神高冷</span>
+                <span class="tag">难以捉摸</span>
+            </div>
+            
+            <!-- 金句 -->
+            <p class="quote">"别理我，我在思考狗生"</p>
+            
+            <!-- 雷达图 -->
+            <div class="radar-section">
+                <div class="radar-content">
+                    <div class="radar-labels left">
+                        <div>
+                            <p class="radar-label">社交能量</p>
+                            <p class="radar-score">30%</p>
+                        </div>
+                        <div>
+                            <p class="radar-label">通人性</p>
+                            <p class="radar-score">90%</p>
+                        </div>
+                    </div>
+                    <div class="radar-chart"></div>
+                    <div class="radar-labels right">
+                        <div>
+                            <p class="radar-label">拆家指数</p>
+                            <p class="radar-score">20%</p>
+                        </div>
+                        <div>
+                            <p class="radar-label">粘人程度</p>
+                            <p class="radar-score">15%</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Match 区域 -->
+        <div class="match-section">
+            <p class="match-title">最佳人类伴侣：<span class="match-highlight">ENTP / ENFP</span></p>
+            <p class="match-advice">"需要耐心的主人，建议准备独处空间"</p>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <div class="footer-brand">
+                <h3>D-MBTI</h3>
+                <p>狗狗性格测试</p>
+            </div>
+            <div class="footer-qr">
+                <div class="qr-code">
+                    <div class="qr-code-inner"></div>
+                </div>
+                <p>扫码测测你的狗</p>
+            </div>
+        </div>
+    </div>
+    
+    <p style="color: #666;">这个布局使用了纯 CSS，没有使用 Tailwind 的类名</p>
+</body>
+</html>
