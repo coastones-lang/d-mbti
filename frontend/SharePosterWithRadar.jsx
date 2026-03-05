@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import html2canvas from 'html2canvas';
 
 /**
  * SharePosterWithRadar - D-MBTI 结果分享海报组件 (带雷达图)
@@ -149,7 +150,29 @@ const SharePosterWithRadar = ({
   const posterRef = useRef(null);
 
   const handleSavePoster = async () => {
-    alert('请安装 html2canvas 并取消注释保存代码');
+    if (!posterRef.current) return;
+
+    try {
+      await document.fonts.ready;
+
+      const canvas = await html2canvas(posterRef.current, {
+        scale: 3,
+        useCORS: true,
+        backgroundColor: null,
+        logging: false,
+      });
+
+      console.log('Canvas size:', canvas.width, 'x', canvas.height);
+
+      const link = document.createElement('a');
+      link.download = `${data.dogName}-DMBTI结果.png`;
+      link.href = canvas.toDataURL('image/png', 1.0);
+      link.click();
+
+    } catch (error) {
+      console.error('生成海报失败:', error);
+      alert('保存失败，请重试');
+    }
   };
 
   const { dogName, mbti, title, quote, radarData } = data;
@@ -171,7 +194,8 @@ const SharePosterWithRadar = ({
       <div 
         ref={posterRef}
         id="share-poster"
-        className="relative w-full max-w-[360px] aspect-[9/16] bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 rounded-3xl overflow-hidden shadow-2xl"
+        className="relative w-[360px] aspect-[9/19] bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 rounded-3xl overflow-hidden shadow-2xl"
+        style={{ aspectRatio: '9/19', width: '360px', height: '760px' }}
       >
         {/* 装饰背景 */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">

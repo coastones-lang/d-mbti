@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import html2canvas from 'html2canvas';
 
 /**
  * SharePoster - D-MBTI 结果分享海报组件
@@ -140,42 +141,34 @@ const SharePoster = ({
    * 3. 取消下方注释并调用此函数
    */
   const handleSavePoster = async () => {
-    // ==================== html2canvas 集成代码 ====================
-    // 取消以下注释以启用保存功能:
-    //
-    // import html2canvas from 'html2canvas';
-    //
-    // if (!posterRef.current) return;
-    // 
-    // try {
-    //   const canvas = await html2canvas(posterRef.current, {
-    //     scale: 3, // 高清输出 (3倍图)
-    //     useCORS: true,
-    //     backgroundColor: null,
-    //     logging: false,
-    //     width: posterRef.current.offsetWidth,
-    //     height: posterRef.current.offsetHeight
-    //   });
-    //   
-    //   // 生成图片并下载
-    //   const link = document.createElement('a');
-    //   link.download = `${data.dogName}-DMBTI结果.png`;
-    //   link.href = canvas.toDataURL('image/png', 1.0);
-    //   link.click();
-    //   
-    //   // 或者显示预览弹窗
-    //   // const imageData = canvas.toDataURL('image/png');
-    //   // setPreviewImage(imageData);
-    //   // setShowPreview(true);
-    //   
-    // } catch (error) {
-    //   console.error('生成海报失败:', error);
-    //   alert('保存失败，请重试');
-    // }
-    // ===========================================================
-    
-    // 临时提示
-    alert('请取消注释 handleSavePoster 函数中的代码，并安装 html2canvas 库以启用保存功能');
+    if (!posterRef.current) return;
+
+    try {
+      // 等待字体和图像加载完成
+      await document.fonts.ready;
+
+      const canvas = await html2canvas(posterRef.current, {
+        scale: 3,
+        useCORS: true,
+        backgroundColor: null,
+        logging: false,
+        // 不指定 width/height，让 html2canvas 根据元素实际尺寸和 scale 自动计算
+        // 360px * 3 = 1080px, 760px * 3 = 2280px
+      });
+
+      // 验证输出尺寸
+      console.log('Canvas size:', canvas.width, 'x', canvas.height);
+
+      // 生成图片并下载
+      const link = document.createElement('a');
+      link.download = `${data.dogName}-DMBTI结果.png`;
+      link.href = canvas.toDataURL('image/png', 1.0);
+      link.click();
+
+    } catch (error) {
+      console.error('生成海报失败:', error);
+      alert('保存失败，请重试');
+    }
   };
 
   const { dogName, mbti, title, quote, stats } = data;
@@ -190,12 +183,12 @@ const SharePoster = ({
 
   return (
     <div className="flex flex-col items-center gap-6 p-4 bg-gray-100 min-h-screen">
-      {/* 海报容器 - 9:16 比例 */}
-      <div 
+      {/* 海报容器 - 9:19 比例 */}
+      <div
         ref={posterRef}
         id="share-poster"
-        className="relative w-full max-w-[360px] aspect-[9/16] bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded-3xl overflow-hidden shadow-2xl"
-        style={{ aspectRatio: '9/16' }}
+        className="relative w-[360px] aspect-[9/19] bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded-3xl overflow-hidden shadow-2xl"
+        style={{ aspectRatio: '9/19', width: '360px', height: '760px' }}
       >
         {/* 装饰背景 */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
